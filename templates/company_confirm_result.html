@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企业-证书验证</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col justify-start min-h-screen p-4 relative">
+
+    <!-- 网页主题 -->
+    <header class="w-full bg-white shadow-md p-6 text-center text-4xl font-bold fixed top-0 left-0 right-0">
+        具有隐私保护的去中心化学历、学位认证系统——企事业单位
+    </header>
+
+    <!-- 图片查看弹窗 -->
+    <div id="image-modal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white p-4 rounded-lg shadow-lg relative max-w-4xl max-h-[90vh] overflow-auto">
+            <button onclick="closeImageModal()" class="absolute top-2 right-2 text-gray-600 hover:text-gray-800">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <img id="modal-image" class="max-w-full h-auto" src="" alt="证书图片">
+        </div>
+    </div>
+
+    <!-- 页面内容容器 -->
+    <div class="flex flex-col items-center justify-center w-full mt-24">
+
+        <!-- 弹窗 -->
+        <!-- 为真 -->
+        <div id="popup-success" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden">
+            <div class="bg-green-100 p-6 rounded-lg shadow-lg text-center border border-green-500">
+                <p class="text-lg mb-4 text-green-700">验证成功，信息为真！</p>
+                <div id="success-hash" class="text-sm mb-4 break-all"></div>
+                <p class="text-sm mb-4">
+                    证明：<span id="success-proof" class="break-all"></span><br>
+                    零知识证明：<span id="success-zk-proof" class="break-all"></span><br>
+                    随机数：<span id="success-random" class="break-all"></span>
+                </p>
+                <button onclick="closePopupS()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">确认</button>
+            </div>
+        </div>
+        <!-- 为假 -->
+        <div id="popup-failure" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden">
+            <div class="bg-red-100 p-6 rounded-lg shadow-lg text-center border border-red-500">
+                <p class="text-lg mb-4 text-red-700">验证失败，信息有误！</p>
+                <div id="failure-hash" class="text-sm mb-4 break-all"></div>
+                <button onclick="closePopupF()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">确认</button>
+            </div>
+        </div>
+
+        <!-- 描述语句 -->
+        <p class="text-lg text-gray-700 mb-2">以下为本次待验证的证书学历信息，请核对后点击验证按钮。</p>
+
+        <!-- 动态表格区域 -->
+        <div id="tables-container" class="w-3/4 space-y-8">
+            <!-- 表格将在这里动态生成 -->
+        </div>
+
+        <!-- 按钮区域并列 -->
+        <div class="flex space-x-4 mt-6 mb-8">
+            <button onclick="window.location.href='/company/verify'" class="bg-red-500 text-white px-6 py-3 rounded-md hover:bg-red-600 shadow-md">取消</button>
+            <button onclick="verifyData()" class="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 shadow-md">验证</button>
+        </div>
+
+        <!-- 验证结果显示区域 -->
+        <div id="verifyResult" class="hidden w-3/4 mt-8">
+            <div id="verifySuccess" class="hidden">
+                <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-lg shadow-lg">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold text-green-800">验证成功！</h3>
+                            <div class="mt-2">
+                                <p class="text-green-700">区块链交易哈希：</p>
+                                <p class="mt-1 text-sm font-mono bg-green-100 p-2 rounded break-all" id="txHash"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="verifyFail" class="hidden">
+                <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow-lg">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="h-8 w-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold text-red-800">验证失败！</h3>
+                            <div class="mt-2">
+                                <p class="text-red-700">错误哈希：</p>
+                                <p class="mt-1 text-sm font-mono bg-red-100 p-2 rounded break-all" id="txHashFail"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 添加图片查看相关函数
+        function showImage(imageData) {
+            const modalImage = document.getElementById('modal-image');
+            modalImage.src = `data:image/jpeg;base64,${imageData}`;
+            document.getElementById('image-modal').classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            document.getElementById('image-modal').classList.add('hidden');
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const verificationData = JSON.parse(localStorage.getItem('verificationData'));
+            if (!verificationData || !verificationData.data || !Array.isArray(verificationData.data)) {
+                alert('无效的验证数据');
+                return;
+            }
+
+            const tablesContainer = document.getElementById("tables-container");
+            
+            // 为每条记录创建一个表格
+            verificationData.data[0].forEach((record, index) => {
+                console.log(record);
+                const tableDiv = document.createElement('div');
+                tableDiv.className = 'bg-white shadow-lg rounded-lg p-6 mb-6';
+                
+                // 创建表格
+                const table = document.createElement('table');
+                table.className = 'w-full border-collapse border border-gray-300 text-center';
+                
+                // 获取所有键
+                const keys = Object.keys(record);
+                
+                // 创建表头
+                const thead = document.createElement('thead');
+                const headerRow = document.createElement('tr');
+                headerRow.className = 'bg-gray-200 text-gray-700';
+                
+                // 添加序号列
+                const indexHeader = document.createElement('th');
+                indexHeader.className = 'border border-gray-300 p-4';
+                indexHeader.textContent = '序号';
+                headerRow.appendChild(indexHeader);
+                
+                // 添加其他列标题
+                keys.forEach(key => {
+                    const th = document.createElement('th');
+                    th.className = 'border border-gray-300 p-4';
+                    th.textContent = key;
+                    headerRow.appendChild(th);
+                });
+
+                // 如果有对应的图片数据，添加图片列
+                if (verificationData.images[0] && verificationData.images[0][index]) {
+                    const imageHeader = document.createElement('th');
+                    imageHeader.className = 'border border-gray-300 p-4';
+                    imageHeader.textContent = '证书图片';
+                    headerRow.appendChild(imageHeader);
+                }
+                
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
+                
+                // 创建表体
+                const tbody = document.createElement('tbody');
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-100';
+                
+                // 添加序号
+                const indexCell = document.createElement('td');
+                indexCell.className = 'border border-gray-300 p-4';
+                indexCell.textContent = (index + 1).toString();
+                row.appendChild(indexCell);
+                
+                // 添加数据单元格
+                keys.forEach(key => {
+                    const td = document.createElement('td');
+                    td.className = 'border border-gray-300 p-4';
+                    td.textContent = record[key] || '';
+                    row.appendChild(td);
+                });
+
+                // 如果有对应的图片数据，添加图片单元格
+                if (verificationData.images[0] && verificationData.images[0][index]) {
+                    const td = document.createElement('td');
+                    td.className = 'border border-gray-300 p-4';
+                    
+                    const buttonsContainer = document.createElement('div');
+                    buttonsContainer.className = 'flex flex-wrap gap-2 justify-center';
+                    
+                    // 处理每个图片数据
+                    verificationData.images[0][index].forEach((imageData, imageIndex) => {
+                        const button = document.createElement('button');
+                        button.className = 'bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm transition-colors duration-200';
+                        button.textContent = '查看图片';
+                        button.onclick = () => showImage(imageData.data);
+                        
+                        buttonsContainer.appendChild(button);
+                    });
+                    
+                    td.appendChild(buttonsContainer);
+                    row.appendChild(td);
+                }
+                
+                tbody.appendChild(row);
+                table.appendChild(tbody);
+                tableDiv.appendChild(table);
+                tablesContainer.appendChild(tableDiv);
+            });
+        });
+
+        async function verifyData() {
+            try {
+                // 显示加载状态
+                const button = document.querySelector('button');
+                const originalText = button.textContent;
+                button.textContent = '验证中...';
+                button.disabled = true;
+
+                const verificationData = JSON.parse(localStorage.getItem('verificationData'));
+                if (!verificationData || !verificationData.data || !Array.isArray(verificationData.data)) {
+                    alert('无效的验证数据');
+                    return;
+                }
+                console.log(verificationData);
+
+                const response = await fetch('http://localhost:3000/api/company/verify-auth-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(verificationData)
+                });
+
+                const result = await response.json();
+                await new Promise(resolve => setTimeout(resolve, 3000));
+
+                // 显示验证结果
+                const verifyResult = document.getElementById('verifyResult');
+                const verifySuccess = document.getElementById('verifySuccess');
+                const verifyFail = document.getElementById('verifyFail');
+                const txHash = document.getElementById('txHash');
+                const txHashFail = document.getElementById('txHashFail');
+
+                verifyResult.classList.remove('hidden');
+                
+                if (result.verified) {
+                    verifySuccess.classList.remove('hidden');
+                    verifyFail.classList.add('hidden');
+                    txHash.textContent = result.tx_hash;
+            } else {
+                    verifySuccess.classList.add('hidden');
+                    verifyFail.classList.remove('hidden');
+                    txHashFail.textContent = result.tx_hash;
+                }
+            } catch (error) {
+                console.error('验证过程出错:', error);
+                alert('验证过程出错，请稍后重试');
+            } finally {
+                // 恢复按钮状态
+                const button = document.querySelector('button');
+                button.textContent = '验证';
+                button.disabled = false;
+            }
+        }
+
+        function showPopupS() {
+            document.getElementById("popup-success").classList.remove("hidden");
+        }
+
+        function showPopupF() {
+            document.getElementById("popup-failure").classList.remove("hidden");
+        }
+
+        function closePopupS() {
+            document.getElementById("popup-success").classList.add("hidden");
+        }
+
+        function closePopupF() {
+            document.getElementById("popup-failure").classList.add("hidden");
+        }
+    </script>
+    
+</body>
+</html>

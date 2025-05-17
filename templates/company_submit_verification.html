@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企业-需验证文件上传页面</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 15px;
+            text-align: center;
+            margin: 10px 0;
+            border-radius: 4px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .upload-area:hover {
+            border-color: #666;
+        }
+        .upload-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            width: 150px;
+        }
+        .upload-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-start min-h-screen">
+    
+    <!-- 加载中遮罩 -->
+    <div id="loading-overlay" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p class="text-lg">正在上传文件，请稍候...</p>
+        </div>
+    </div>
+
+    <!-- 网页主题 -->
+    <header class="w-full bg-white shadow-md p-5 text-center text-3xl font-bold mb-4">
+        具有隐私保护的去中心化学历、学位认证系统——企事业单位
+    </header>
+    
+    <!-- 主体内容区域 -->
+    <div class="bg-white shadow-lg rounded-lg p-5 flex w-full max-w-[65%] mx-4 mt-4">
+        
+        <!-- 左侧大图片区域 -->
+        <div class="w-3/5 flex justify-center items-center pr-5">
+            <img src="/static/company.png" alt="企业认证" class="rounded-lg shadow-md w-full h-auto object-cover">
+        </div>
+        
+        <!-- 右侧上传区域 -->
+        <div class="w-2/5 flex flex-col justify-center space-y-3">
+            <div class="text-center mb-2">
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">请上传需验证的证书</h2>
+                <p class="text-gray-600 text-sm mb-1">支持JSON证书文件格式</p>
+                <p class="text-gray-600 text-sm">上传完成后将自动跳转到结果页面</p>
+            </div>
+
+            <!-- 文件上传区域 -->
+            <div id="uploadArea" class="upload-area">
+                <div class="flex flex-col items-center space-y-4">
+                    <input type="file" id="file-input" class="hidden" accept=".json" onchange="handleFileSelect()">
+                    <p class="text-sm mb-2">拖放文件到这里或点击上传</p>
+                    <label for="file-input" class="w-full">
+                        <div class="upload-btn mx-auto">
+                            点击选择文件上传
+                        </div>
+                    </label>
+                    <div class="text-sm text-gray-500">
+                        支持的文件类型: JSON
+                    </div>
+                </div>
+            </div>
+
+            <!-- 文件预览区域 -->
+            <div id="preview-area" class="hidden">
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <svg class="h-6 w-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span id="file-name" class="text-sm font-medium text-gray-900"></span>
+                        </div>
+                        <button onclick="clearFile()" class="text-red-500 hover:text-red-700">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const fileLabel = document.getElementById('file-label');
+        const previewArea = document.getElementById('preview-area');
+        const fileName = document.getElementById('file-name');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const uploadArea = document.getElementById('uploadArea');
+
+        // 处理文件拖放
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#4CAF50';
+        });
+
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (file) {
+                if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
+                    alert('请上传JSON文件！');
+                    clearFile();
+                    return;
+                }
+
+                fileName.textContent = file.name;
+                previewArea.classList.remove('hidden');
+                
+                // 自动开始处理文件
+                handleFileProcessing(file);
+            }
+        }
+
+        function clearFile() {
+            fileInput.value = '';
+            previewArea.classList.add('hidden');
+        }
+
+        function handleFileProcessing(file) {
+            loadingOverlay.classList.remove('hidden');
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    console.log(jsonData);
+                    
+                    // 调用API验证数据
+                    const response = await fetch('http://localhost:3000/api/company/upload', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(jsonData)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('API请求失败');
+                    }
+
+                    const responseData = await response.json();
+                    // 保存数据到localStorage
+                    localStorage.setItem('verificationData', JSON.stringify(responseData));
+                    // 跳转到结果页面
+                    window.location.href = '/company/result';
+                } catch (error) {
+                    alert('处理失败：' + error.message);
+                    loadingOverlay.classList.add('hidden');
+                }
+            };
+
+            reader.onerror = function() {
+                alert('文件读取失败，请重试！');
+                loadingOverlay.classList.add('hidden');
+            };
+
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学校-毕业生信息上传页面</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="/static/js/school_upload.js"></script>
+    <style>
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 15px;
+            text-align: center;
+            margin: 10px 0;
+            border-radius: 4px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .upload-area:hover {
+            border-color: #666;
+        }
+        .upload-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            width: 150px;
+        }
+        .upload-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-start min-h-screen">
+    
+    <!-- 网页主题 -->
+    <header class="w-full bg-white shadow-md p-5 text-center text-3xl font-bold mb-4">
+        具有隐私保护的去中心化学历、学位认证系统——学校
+        <span class="absolute bottom-2 right-16 text-base text-gray-700">华东师范大学</span>
+    </header>
+    
+    <!-- 主体内容区域 -->
+    <div class="bg-white shadow-lg rounded-lg p-5 flex w-full max-w-[65%] mx-4 mt-4">
+        
+        <!-- 左侧大图片区域 -->
+        <div class="w-3/5 flex justify-center items-center pr-5">
+            <img src="/static/school.png" alt="学校_毕业生" class="rounded-lg shadow-md w-full h-auto object-cover">
+        </div>
+        
+        <!-- 右侧上传区域 -->
+        <div class="w-2/5 flex flex-col justify-center space-y-3">
+            <div class="text-center mb-2">
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">请上传毕业生信息</h2>
+                <p class="text-gray-600 text-sm mb-1">支持Excel表格和图片文件</p>
+                <p class="text-gray-600 text-sm">上传完成后将自动跳转到信息确认页面</p>
+            </div>
+            <div id="uploadArea" class="upload-area">
+                <p class="text-sm mb-2">拖放文件到这里或点击上传</p>
+                <input type="file" id="folderInput" multiple accept=".xlsx,.xls,.jpg,.jpeg,.png" style="display: none;">
+                <button class="upload-btn" onclick="document.getElementById('folderInput').click()">选择文件</button>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生-证书上传页面</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 15px;
+            text-align: center;
+            margin: 10px 0;
+            border-radius: 4px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .upload-area:hover {
+            border-color: #666;
+        }
+        .upload-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            width: 150px;
+        }
+        .upload-btn:hover {
+            background-color: #45a049;
+        }
+        #error-message {
+            color: red;
+            margin-top: 10px;
+            display: none;
+        }
+        .loading {
+            display: none;
+            margin-top: 10px;
+        }
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #4CAF50;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-start min-h-screen">
+    
+    <!-- 网页主题 -->
+    <header class="w-full bg-white shadow-md p-5 text-center text-3xl font-bold mb-4">
+        具有隐私保护的去中心化学历、学位认证系统——毕业生
+        <span class="absolute bottom-2 right-16 text-base text-gray-700">华东师范大学</span>
+    </header>
+    
+    <!-- 主体内容区域 -->
+    <div class="bg-white shadow-lg rounded-lg p-5 flex w-full max-w-[65%] mx-4 mt-4">
+        
+        <!-- 左侧大图片区域 -->
+        <div class="w-3/5 flex justify-center items-center pr-5">
+            <img src="/static/student.png" alt="学校_毕业生" class="rounded-lg shadow-md w-full h-auto object-cover">
+        </div>
+        
+        <!-- 右侧上传区域 -->
+        <div class="w-2/5 flex flex-col justify-center space-y-3">
+            <div class="text-center mb-2">
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">请上传您的证书</h2>
+                <p class="text-gray-600 text-sm mb-1">支持JSON证书文件格式</p>
+                <p class="text-gray-600 text-sm">上传完成后将自动跳转到信息确认页面</p>
+            </div>
+            <div id="uploadArea" class="upload-area">
+                <p class="text-sm mb-2">拖放文件到这里或点击上传</p>
+                <input type="file" id="fileInput" accept=".json" style="display: none;">
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">选择文件</button>
+            </div>
+            <p id="error-message"></p>
+            <div id="loading" class="loading">
+                <div class="loading-spinner"></div>
+                <p class="text-center text-gray-600 mt-2">正在处理，请稍候...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        const fileInput = document.getElementById('fileInput');
+        const errorMessage = document.getElementById('error-message');
+        const uploadArea = document.getElementById('uploadArea');
+        const loading = document.getElementById('loading');
+
+        // 处理文件拖放
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#4CAF50';
+        });
+
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+
+        // 处理文件选择
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = message ? 'block' : 'none';
+            loading.style.display = 'none';
+        }
+
+        function showLoading(show) {
+            loading.style.display = show ? 'block' : 'none';
+        }
+
+        function handleFileSelect(file) {
+            if (file.type !== 'application/json') {
+                showError('请上传JSON格式的证书文件');
+                return;
+            }
+            selectedFile = file;
+            showError('');
+            handleSubmit(); // 自动执行提交
+        }
+
+        async function handleSubmit() {
+            if (!selectedFile) {
+                showError('请先选择证书文件');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                // 读取文件内容
+                const fileContent = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.onerror = (e) => reject(e);
+                    reader.readAsText(selectedFile);
+                });
+
+                // 解析JSON内容
+                const certificateData = JSON.parse(fileContent);
+
+                const response = await fetch('http://localhost:3000/api/student/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify([certificateData])
+                });
+
+                if (!response.ok) {
+                    throw new Error('上传失败');
+                }
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // 将原始数据存储在localStorage中
+                localStorage.setItem('certificateData', JSON.stringify({id: certificateData.id, data: data[0]}));
+                
+                // 跳转到认证生成页面
+                window.location.href = '/student/generate';
+            } catch (error) {
+                showError('上传失败：' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+    </script>
+     
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教育证书验证系统</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .upload-area:hover {
+            border-color: #666;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .preview {
+            margin-top: 20px;
+        }
+        .preview img {
+            max-width: 200px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>教育证书验证系统</h1>
+        
+        <!-- 上传区域 -->
+        <div class="upload-section">
+            <h2>上传文件</h2>
+            <div id="uploadArea" class="upload-area">
+                <p>拖放文件到这里或点击上传</p>
+                <input type="file" id="folderInput" multiple accept=".xlsx,.xls,.jpg,.jpeg,.png" style="display: none;">
+                <button class="upload-btn" onclick="document.getElementById('folderInput').click()">选择文件</button>
+            </div>
+        </div>
+
+        <!-- 验证区域 -->
+        <div class="verify-section">
+            <h2>验证证书</h2>
+            <div class="verify-area">
+                <input type="file" id="verifyInput" accept=".json,.zip" style="display: none;">
+                <button class="verify-btn" onclick="document.getElementById('verifyInput').click()">选择证书文件</button>
+            </div>
+        </div>
+
+        <!-- 预览区域 -->
+        <div id="preview" class="preview-section">
+            <h2>预览</h2>
+        </div>
+
+        <!-- 验证结果区域 -->
+        <div id="verifyResult" class="verify-result">
+            <h2>验证结果</h2>
+        </div>
+    </div>
+
+    <script src="/static/js/verify.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html> 

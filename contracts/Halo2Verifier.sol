@@ -1,0 +1,1447 @@
+
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.0;
+
+contract Halo2Verifier {
+    fallback(bytes calldata) external returns (bytes memory) {
+        assembly ("memory-safe") {
+            // Enforce that Solidity memory layout is respected
+            let data := mload(0x40)
+            if iszero(eq(data, 0x80)) {
+                revert(0, 0)
+            }
+
+            let success := true
+            let f_p := 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47
+            let f_q := 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+            function validate_ec_point(x, y) -> valid {
+                {
+                    let x_lt_p := lt(x, 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47)
+                    let y_lt_p := lt(y, 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47)
+                    valid := and(x_lt_p, y_lt_p)
+                }
+                {
+                    let y_square := mulmod(y, y, 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47)
+                    let x_square := mulmod(x, x, 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47)
+                    let x_cube := mulmod(x_square, x, 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47)
+                    let x_cube_plus_3 := addmod(x_cube, 3, 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47)
+                    let is_affine := eq(x_cube_plus_3, y_square)
+                    valid := and(valid, is_affine)
+                }
+            }
+            mstore(0xa0, mod(calldataload(0x0), f_q))
+mstore(0xc0, mod(calldataload(0x20), f_q))
+mstore(0xe0, mod(calldataload(0x40), f_q))
+mstore(0x100, mod(calldataload(0x60), f_q))
+mstore(0x120, mod(calldataload(0x80), f_q))
+mstore(0x140, mod(calldataload(0xa0), f_q))
+mstore(0x160, mod(calldataload(0xc0), f_q))
+mstore(0x180, mod(calldataload(0xe0), f_q))
+mstore(0x1a0, mod(calldataload(0x100), f_q))
+mstore(0x1c0, mod(calldataload(0x120), f_q))
+mstore(0x1e0, mod(calldataload(0x140), f_q))
+mstore(0x200, mod(calldataload(0x160), f_q))
+mstore(0x220, mod(calldataload(0x180), f_q))
+mstore(0x240, mod(calldataload(0x1a0), f_q))
+mstore(0x260, mod(calldataload(0x1c0), f_q))
+mstore(0x280, mod(calldataload(0x1e0), f_q))
+mstore(0x2a0, mod(calldataload(0x200), f_q))
+mstore(0x2c0, mod(calldataload(0x220), f_q))
+mstore(0x2e0, mod(calldataload(0x240), f_q))
+mstore(0x300, mod(calldataload(0x260), f_q))
+mstore(0x320, mod(calldataload(0x280), f_q))
+mstore(0x340, mod(calldataload(0x2a0), f_q))
+mstore(0x360, mod(calldataload(0x2c0), f_q))
+mstore(0x380, mod(calldataload(0x2e0), f_q))
+mstore(0x3a0, mod(calldataload(0x300), f_q))
+mstore(0x3c0, mod(calldataload(0x320), f_q))
+mstore(0x3e0, mod(calldataload(0x340), f_q))
+mstore(0x400, mod(calldataload(0x360), f_q))
+mstore(0x420, mod(calldataload(0x380), f_q))
+mstore(0x440, mod(calldataload(0x3a0), f_q))
+mstore(0x460, mod(calldataload(0x3c0), f_q))
+mstore(0x480, mod(calldataload(0x3e0), f_q))
+mstore(0x4a0, mod(calldataload(0x400), f_q))
+mstore(0x4c0, mod(calldataload(0x420), f_q))
+mstore(0x4e0, mod(calldataload(0x440), f_q))
+mstore(0x500, mod(calldataload(0x460), f_q))
+mstore(0x520, mod(calldataload(0x480), f_q))
+mstore(0x540, mod(calldataload(0x4a0), f_q))
+mstore(0x560, mod(calldataload(0x4c0), f_q))
+mstore(0x580, mod(calldataload(0x4e0), f_q))
+mstore(0x5a0, mod(calldataload(0x500), f_q))
+mstore(0x5c0, mod(calldataload(0x520), f_q))
+mstore(0x5e0, mod(calldataload(0x540), f_q))
+mstore(0x600, mod(calldataload(0x560), f_q))
+mstore(0x620, mod(calldataload(0x580), f_q))
+mstore(0x640, mod(calldataload(0x5a0), f_q))
+mstore(0x660, mod(calldataload(0x5c0), f_q))
+mstore(0x80, 12213542322525141854304220854079002538714349509714240827996614073736234388696)
+
+        {
+            let x := calldataload(0x5e0)
+            mstore(0x680, x)
+            let y := calldataload(0x600)
+            mstore(0x6a0, y)
+            success := and(validate_ec_point(x, y), success)
+        }
+mstore(0x6c0, keccak256(0x80, 1600))
+{
+            let hash := mload(0x6c0)
+            mstore(0x6e0, mod(hash, f_q))
+            mstore(0x700, hash)
+        }
+mstore8(1824, 1)
+mstore(0x720, keccak256(0x700, 33))
+{
+            let hash := mload(0x720)
+            mstore(0x740, mod(hash, f_q))
+            mstore(0x760, hash)
+        }
+mstore8(1920, 1)
+mstore(0x780, keccak256(0x760, 33))
+{
+            let hash := mload(0x780)
+            mstore(0x7a0, mod(hash, f_q))
+            mstore(0x7c0, hash)
+        }
+
+        {
+            let x := calldataload(0x620)
+            mstore(0x7e0, x)
+            let y := calldataload(0x640)
+            mstore(0x800, y)
+            success := and(validate_ec_point(x, y), success)
+        }
+
+        {
+            let x := calldataload(0x660)
+            mstore(0x820, x)
+            let y := calldataload(0x680)
+            mstore(0x840, y)
+            success := and(validate_ec_point(x, y), success)
+        }
+
+        {
+            let x := calldataload(0x6a0)
+            mstore(0x860, x)
+            let y := calldataload(0x6c0)
+            mstore(0x880, y)
+            success := and(validate_ec_point(x, y), success)
+        }
+
+        {
+            let x := calldataload(0x6e0)
+            mstore(0x8a0, x)
+            let y := calldataload(0x700)
+            mstore(0x8c0, y)
+            success := and(validate_ec_point(x, y), success)
+        }
+mstore(0x8e0, keccak256(0x7c0, 288))
+{
+            let hash := mload(0x8e0)
+            mstore(0x900, mod(hash, f_q))
+            mstore(0x920, hash)
+        }
+
+        {
+            let x := calldataload(0x720)
+            mstore(0x940, x)
+            let y := calldataload(0x740)
+            mstore(0x960, y)
+            success := and(validate_ec_point(x, y), success)
+        }
+
+        {
+            let x := calldataload(0x760)
+            mstore(0x980, x)
+            let y := calldataload(0x780)
+            mstore(0x9a0, y)
+            success := and(validate_ec_point(x, y), success)
+        }
+mstore(0x9c0, keccak256(0x920, 160))
+{
+            let hash := mload(0x9c0)
+            mstore(0x9e0, mod(hash, f_q))
+            mstore(0xa00, hash)
+        }
+mstore(0xa20, mod(calldataload(0x7a0), f_q))
+mstore(0xa40, mod(calldataload(0x7c0), f_q))
+mstore(0xa60, mod(calldataload(0x7e0), f_q))
+mstore(0xa80, mod(calldataload(0x800), f_q))
+mstore(0xaa0, mod(calldataload(0x820), f_q))
+mstore(0xac0, mod(calldataload(0x840), f_q))
+mstore(0xae0, mod(calldataload(0x860), f_q))
+mstore(0xb00, mod(calldataload(0x880), f_q))
+mstore(0xb20, mod(calldataload(0x8a0), f_q))
+mstore(0xb40, mod(calldataload(0x8c0), f_q))
+mstore(0xb60, mod(calldataload(0x8e0), f_q))
+mstore(0xb80, mod(calldataload(0x900), f_q))
+mstore(0xba0, mod(calldataload(0x920), f_q))
+mstore(0xbc0, mod(calldataload(0x940), f_q))
+mstore(0xbe0, mod(calldataload(0x960), f_q))
+mstore(0xc00, mod(calldataload(0x980), f_q))
+mstore(0xc20, mod(calldataload(0x9a0), f_q))
+mstore(0xc40, mod(calldataload(0x9c0), f_q))
+mstore(0xc60, keccak256(0xa00, 608))
+{
+            let hash := mload(0xc60)
+            mstore(0xc80, mod(hash, f_q))
+            mstore(0xca0, hash)
+        }
+mstore8(3264, 1)
+mstore(0xcc0, keccak256(0xca0, 33))
+{
+            let hash := mload(0xcc0)
+            mstore(0xce0, mod(hash, f_q))
+            mstore(0xd00, hash)
+        }
+
+        {
+            let x := calldataload(0x9e0)
+            mstore(0xd20, x)
+            let y := calldataload(0xa00)
+            mstore(0xd40, y)
+            success := and(validate_ec_point(x, y), success)
+        }
+mstore(0xd60, keccak256(0xd00, 96))
+{
+            let hash := mload(0xd60)
+            mstore(0xd80, mod(hash, f_q))
+            mstore(0xda0, hash)
+        }
+
+        {
+            let x := calldataload(0xa20)
+            mstore(0xdc0, x)
+            let y := calldataload(0xa40)
+            mstore(0xde0, y)
+            success := and(validate_ec_point(x, y), success)
+        }
+mstore(0xe00, mulmod(mload(0x9e0), mload(0x9e0), f_q))
+mstore(0xe20, mulmod(mload(0xe00), mload(0xe00), f_q))
+mstore(0xe40, mulmod(mload(0xe20), mload(0xe20), f_q))
+mstore(0xe60, mulmod(mload(0xe40), mload(0xe40), f_q))
+mstore(0xe80, mulmod(mload(0xe60), mload(0xe60), f_q))
+mstore(0xea0, mulmod(mload(0xe80), mload(0xe80), f_q))
+mstore(0xec0, mulmod(mload(0xea0), mload(0xea0), f_q))
+mstore(0xee0, mulmod(mload(0xec0), mload(0xec0), f_q))
+mstore(0xf00, mulmod(mload(0xee0), mload(0xee0), f_q))
+mstore(0xf20, mulmod(mload(0xf00), mload(0xf00), f_q))
+mstore(0xf40, mulmod(mload(0xf20), mload(0xf20), f_q))
+mstore(0xf60, mulmod(mload(0xf40), mload(0xf40), f_q))
+mstore(0xf80, mulmod(mload(0xf60), mload(0xf60), f_q))
+mstore(0xfa0, mulmod(mload(0xf80), mload(0xf80), f_q))
+mstore(0xfc0, mulmod(mload(0xfa0), mload(0xfa0), f_q))
+mstore(0xfe0, mulmod(mload(0xfc0), mload(0xfc0), f_q))
+mstore(0x1000, addmod(mload(0xfe0), 21888242871839275222246405745257275088548364400416034343698204186575808495616, f_q))
+mstore(0x1020, mulmod(mload(0x1000), 21887908883758345057524386604544609419677994704914319011142910940051965480961, f_q))
+mstore(0x1040, mulmod(mload(0x1020), 19343146892916237615654043009195602139873661276405922646774320324892220692243, f_q))
+mstore(0x1060, addmod(mload(0x9e0), 2545095978923037606592362736061672948674703124010111696923883861683587803374, f_q))
+mstore(0x1080, mulmod(mload(0x1020), 10763352634187770026454006562738618997775638622944072507352459644433398105234, f_q))
+mstore(0x10a0, addmod(mload(0x9e0), 11124890237651505195792399182518656090772725777471961836345744542142410390383, f_q))
+mstore(0x10c0, mulmod(mload(0x1020), 20628911774076080115677997654955975916574240699700602202492084084217515773353, f_q))
+mstore(0x10e0, addmod(mload(0x9e0), 1259331097763195106568408090301299171974123700715432141206120102358292722264, f_q))
+mstore(0x1100, mulmod(mload(0x1020), 21534532313823515215512181691915269261875716777293450290797415136928563006845, f_q))
+mstore(0x1120, addmod(mload(0x9e0), 353710558015760006734224053342005826672647623122584052900789049647245488772, f_q))
+mstore(0x1140, mulmod(mload(0x1020), 18801136258871406524726641978934912926273987048785013233465874845411408769764, f_q))
+mstore(0x1160, addmod(mload(0x9e0), 3087106612967868697519763766322362162274377351631021110232329341164399725853, f_q))
+mstore(0x1180, mulmod(mload(0x1020), 14204982954615820785730815556166377574172276341958019443243371773666809943588, f_q))
+mstore(0x11a0, addmod(mload(0x9e0), 7683259917223454436515590189090897514376088058458014900454832412908998552029, f_q))
+mstore(0x11c0, mulmod(mload(0x1020), 5857228514216831962358810454360739186987616060007133076514874820078026801648, f_q))
+mstore(0x11e0, addmod(mload(0x9e0), 16031014357622443259887595290896535901560748340408901267183329366497781693969, f_q))
+mstore(0x1200, mulmod(mload(0x1020), 1, f_q))
+mstore(0x1220, addmod(mload(0x9e0), 21888242871839275222246405745257275088548364400416034343698204186575808495616, f_q))
+mstore(0x1240, mulmod(mload(0x1020), 4443263508319656594054352481848447997537391617204595126809744742387004492585, f_q))
+mstore(0x1260, addmod(mload(0x9e0), 17444979363519618628192053263408827091010972783211439216888459444188804003032, f_q))
+mstore(0x1280, mulmod(mload(0x1020), 19671853614403325433334785013442879012032153960035114761748042217991436932142, f_q))
+mstore(0x12a0, addmod(mload(0x9e0), 2216389257435949788911620731814396076516210440380919581950161968584371563475, f_q))
+mstore(0x12c0, mulmod(mload(0x1020), 14978482549995272940995530918097137114536569299992887607386680153997031922392, f_q))
+mstore(0x12e0, addmod(mload(0x9e0), 6909760321844002281250874827160137974011795100423146736311524032578776573225, f_q))
+mstore(0x1300, mulmod(mload(0x1020), 15929319040748925786993503352261583814540822795415523916919259682053529746604, f_q))
+mstore(0x1320, addmod(mload(0x9e0), 5958923831090349435252902392995691274007541605000510426778944504522278749013, f_q))
+mstore(0x1340, mulmod(mload(0x1020), 9562788780338732237666757130861838002277431603997956068277423086113774063535, f_q))
+mstore(0x1360, addmod(mload(0x9e0), 12325454091500542984579648614395437086270932796418078275420781100462034432082, f_q))
+mstore(0x1380, mulmod(mload(0x1020), 16835280225506959940941177652215257171979491230027470730380297510496806661123, f_q))
+mstore(0x13a0, addmod(mload(0x9e0), 5052962646332315281305228093042017916568873170388563613317906676079001834494, f_q))
+mstore(0x13c0, mulmod(mload(0x1020), 17943655122451399151672287191397330070246961260635373160249450161666410823837, f_q))
+mstore(0x13e0, addmod(mload(0x9e0), 3944587749387876070574118553859945018301403139780661183448754024909397671780, f_q))
+mstore(0x1400, mulmod(mload(0x1020), 7639533265163976691415229044267874600193442264900203434604590818075310717665, f_q))
+mstore(0x1420, addmod(mload(0x9e0), 14248709606675298530831176700989400488354922135515830909093613368500497777952, f_q))
+mstore(0x1440, mulmod(mload(0x1020), 6367712441974766733169375763616865565338366673508533046892997015088360643844, f_q))
+mstore(0x1460, addmod(mload(0x9e0), 15520530429864508489077029981640409523209997726907501296805207171487447851773, f_q))
+mstore(0x1480, mulmod(mload(0x1020), 10817572581126374282588241056332689655118415015621085723705800493097145111478, f_q))
+mstore(0x14a0, addmod(mload(0x9e0), 11070670290712900939658164688924585433429949384794948619992403693478663384139, f_q))
+mstore(0x14c0, mulmod(mload(0x1020), 693671948953656729811990686761243132736192415398055244404798840400538470854, f_q))
+mstore(0x14e0, addmod(mload(0x9e0), 21194570922885618492434415058496031955812171985017979099293405346175270024763, f_q))
+mstore(0x1500, mulmod(mload(0x1020), 15638222080586249949328998959233318077497512971168945296196164310654396499876, f_q))
+mstore(0x1520, addmod(mload(0x9e0), 6250020791253025272917406786023957011050851429247089047502039875921411995741, f_q))
+mstore(0x1540, mulmod(mload(0x1020), 20760610835720718244374295720622493552881144517484124073594958525344185862956, f_q))
+mstore(0x1560, addmod(mload(0x9e0), 1127632036118556977872110024634781535667219882931910270103245661231622632661, f_q))
+mstore(0x1580, mulmod(mload(0x1020), 9313529377039072267735910010684861413191971876323449816638715736071127853368, f_q))
+mstore(0x15a0, addmod(mload(0x9e0), 12574713494800202954510495734572413675356392524092584527059488450504680642249, f_q))
+mstore(0x15c0, mulmod(mload(0x1020), 11398040133241696315748907598167401240421177117030742839903918361989725937125, f_q))
+mstore(0x15e0, addmod(mload(0x9e0), 10490202738597578906497498147089873848127187283385291503794285824586082558492, f_q))
+mstore(0x1600, mulmod(mload(0x1020), 21430327775050057859055751320913139171897713365144575466426070809149931679462, f_q))
+mstore(0x1620, addmod(mload(0x9e0), 457915096789217363190654424344135916650651035271458877272133377425876816155, f_q))
+mstore(0x1640, mulmod(mload(0x1020), 11306507262680143352985690414317261873042411405954881168818416743418443882981, f_q))
+mstore(0x1660, addmod(mload(0x9e0), 10581735609159131869260715330940013215505952994461153174879787443157364612636, f_q))
+mstore(0x1680, mulmod(mload(0x1020), 12416012447263446477895752022673105911143631074143047213067100309831389351601, f_q))
+mstore(0x16a0, addmod(mload(0x9e0), 9472230424575828744350653722584169177404733326272987130631103876744419144016, f_q))
+mstore(0x16c0, mulmod(mload(0x1020), 13191125191052236567202905893504876447747198445678552385183770435680047176831, f_q))
+mstore(0x16e0, addmod(mload(0x9e0), 8697117680787038655043499851752398640801165954737481958514433750895761318786, f_q))
+mstore(0x1700, mulmod(mload(0x1020), 19031302908450604562889298070172749511430940511785336328513302118176388524718, f_q))
+mstore(0x1720, addmod(mload(0x9e0), 2856939963388670659357107675084525577117423888630698015184902068399419970899, f_q))
+mstore(0x1740, mulmod(mload(0x1020), 764655527372934067547485808392753382609252153719812011880566686343890240409, f_q))
+mstore(0x1760, addmod(mload(0x9e0), 21123587344466341154698919936864521705939112246696222331817637500231918255208, f_q))
+mstore(0x1780, mulmod(mload(0x1020), 515542025230748472602097516946488174978608714111911762847242933780117086079, f_q))
+mstore(0x17a0, addmod(mload(0x9e0), 21372700846608526749644308228310786913569755686304122580850961252795691409538, f_q))
+mstore(0x17c0, mulmod(mload(0x1020), 1956707412550092684646530634136165120274431403242169312051796533891484346164, f_q))
+mstore(0x17e0, addmod(mload(0x9e0), 19931535459289182537599875111121109968273932997173865031646407652684324149453, f_q))
+mstore(0x1800, mulmod(mload(0x1020), 19801025127110706479086454580494592563406776699172940972349085025192191784276, f_q))
+mstore(0x1820, addmod(mload(0x9e0), 2087217744728568743159951164762682525141587701243093371349119161383616711341, f_q))
+mstore(0x1840, mulmod(mload(0x1020), 7645724058913609969001161397142865797303122285125254064625850676183457156104, f_q))
+mstore(0x1860, addmod(mload(0x9e0), 14242518812925665253245244348114409291245242115290780279072353510392351339513, f_q))
+mstore(0x1880, mulmod(mload(0x1020), 8205416402107645088724559941664847141431662966189248332826990330558436903850, f_q))
+mstore(0x18a0, addmod(mload(0x9e0), 13682826469731630133521845803592427947116701434226786010871213856017371591767, f_q))
+mstore(0x18c0, mulmod(mload(0x1020), 12272091475482083996335184104553811661150034750255679917767225414075312476594, f_q))
+mstore(0x18e0, addmod(mload(0x9e0), 9616151396357191225911221640703463427398329650160354425930978772500496019023, f_q))
+mstore(0x1900, mulmod(mload(0x1020), 13185748751675195555279102972948912154879203606603583094906325276760152292823, f_q))
+mstore(0x1920, addmod(mload(0x9e0), 8702494120164079666967302772308362933669160793812451248791878909815656202794, f_q))
+mstore(0x1940, mulmod(mload(0x1020), 12433766361922266767267074150075217587767487026603174605874592177740138850716, f_q))
+mstore(0x1960, addmod(mload(0x9e0), 9454476509917008454979331595182057500780877373812859737823612008835669644901, f_q))
+mstore(0x1980, mulmod(mload(0x1020), 12086932760870664145406453533441779283116927473797317741080791549625477537279, f_q))
+mstore(0x19a0, addmod(mload(0x9e0), 9801310110968611076839952211815495805431436926618716602617412636950330958338, f_q))
+mstore(0x19c0, mulmod(mload(0x1020), 10029475307448127720607468531887787965449969631160664610161061028627811318667, f_q))
+mstore(0x19e0, addmod(mload(0x9e0), 11858767564391147501638937213369487123098394769255369733537143157947997176950, f_q))
+mstore(0x1a00, mulmod(mload(0x1020), 9396103202274256930945606623206526900461945684265495839012435492634193195103, f_q))
+mstore(0x1a20, addmod(mload(0x9e0), 12492139669565018291300799122050748188086418716150538504685768693941615300514, f_q))
+mstore(0x1a40, mulmod(mload(0x1020), 10598356151727555430390375499027518004998635427269506217493394762024770227094, f_q))
+mstore(0x1a60, addmod(mload(0x9e0), 11289886720111719791856030246229757083549728973146528126204809424551038268523, f_q))
+mstore(0x1a80, mulmod(mload(0x1020), 16177577320434557703396382850755797747250322236757356600889108130061873089828, f_q))
+mstore(0x1aa0, addmod(mload(0x9e0), 5710665551404717518850022894501477341298042163658677742809096056513935405789, f_q))
+mstore(0x1ac0, mulmod(mload(0x1020), 14371170202080766876001826529280271672146459296598249634049882222711896389052, f_q))
+mstore(0x1ae0, addmod(mload(0x9e0), 7517072669758508346244579215977003416401905103817784709648321963863912106565, f_q))
+mstore(0x1b00, mulmod(mload(0x1020), 12608525986137196436380265487925259284083862017418452956005893158143335114446, f_q))
+mstore(0x1b20, addmod(mload(0x9e0), 9279716885702078785866140257332015804464502382997581387692311028432473381171, f_q))
+mstore(0x1b40, mulmod(mload(0x1020), 19180488681984755870892382934762946423091678156058826017685799812650638226168, f_q))
+mstore(0x1b60, addmod(mload(0x9e0), 2707754189854519351354022810494328665456686244357208326012404373925170269449, f_q))
+mstore(0x1b80, mulmod(mload(0x1020), 17238216250379384101612864947674714205816428080876337225564885983901826291900, f_q))
+mstore(0x1ba0, addmod(mload(0x9e0), 4650026621459891120633540797582560882731936319539697118133318202673982203717, f_q))
+mstore(0x1bc0, mulmod(mload(0x1020), 12972204330622561931407402579378821277093467144816075897193283752140704917833, f_q))
+mstore(0x1be0, addmod(mload(0x9e0), 8916038541216713290839003165878453811454897255599958446504920434435103577784, f_q))
+mstore(0x1c00, mulmod(mload(0x1020), 2406746174483677402619219194488362073228214321593353370527029031983296506693, f_q))
+mstore(0x1c20, addmod(mload(0x9e0), 19481496697355597819627186550768913015320150078822680973171175154592511988924, f_q))
+mstore(0x1c40, mulmod(mload(0x1020), 8044905060416052608990385610614766206123899777887445614788378843209262765805, f_q))
+mstore(0x1c60, addmod(mload(0x9e0), 13843337811423222613256020134642508882424464622528588728909825343366545729812, f_q))
+mstore(0x1c80, mulmod(mload(0x1020), 1455866846806769980619145989870714824670312875614655465693958061832896550242, f_q))
+mstore(0x1ca0, addmod(mload(0x9e0), 20432376025032505241627259755386560263878051524801378878004246124742911945375, f_q))
+mstore(0x1cc0, mulmod(mload(0x1020), 16459025399394389506968336646659181452325523120252052337594882654567379081222, f_q))
+mstore(0x1ce0, addmod(mload(0x9e0), 5429217472444885715278069098598093636222841280163982006103321532008429414395, f_q))
+mstore(0x1d00, mulmod(mload(0x1020), 8616962730556588840052819989546835226909372921499251586382854989866120786068, f_q))
+mstore(0x1d20, addmod(mload(0x9e0), 13271280141282686382193585755710439861638991478916782757315349196709687709549, f_q))
+mstore(0x1d40, mulmod(mload(0x1020), 3764578310869240064809567504529402455800791266914523170416852859837375834290, f_q))
+mstore(0x1d60, addmod(mload(0x9e0), 18123664560970035157436838240727872632747573133501511173281351326738432661327, f_q))
+mstore(0x1d80, mulmod(mload(0x1020), 5732822793048787299422373448698465168200305202216696357040755927409818767252, f_q))
+mstore(0x1da0, addmod(mload(0x9e0), 16155420078790487922824032296558809920348059198199337986657448259165989728365, f_q))
+{
+            let prod := mload(0x1060)
+
+                prod := mulmod(mload(0x10a0), prod, f_q)
+                mstore(0x1dc0, prod)
+            
+                prod := mulmod(mload(0x10e0), prod, f_q)
+                mstore(0x1de0, prod)
+            
+                prod := mulmod(mload(0x1120), prod, f_q)
+                mstore(0x1e00, prod)
+            
+                prod := mulmod(mload(0x1160), prod, f_q)
+                mstore(0x1e20, prod)
+            
+                prod := mulmod(mload(0x11a0), prod, f_q)
+                mstore(0x1e40, prod)
+            
+                prod := mulmod(mload(0x11e0), prod, f_q)
+                mstore(0x1e60, prod)
+            
+                prod := mulmod(mload(0x1220), prod, f_q)
+                mstore(0x1e80, prod)
+            
+                prod := mulmod(mload(0x1260), prod, f_q)
+                mstore(0x1ea0, prod)
+            
+                prod := mulmod(mload(0x12a0), prod, f_q)
+                mstore(0x1ec0, prod)
+            
+                prod := mulmod(mload(0x12e0), prod, f_q)
+                mstore(0x1ee0, prod)
+            
+                prod := mulmod(mload(0x1320), prod, f_q)
+                mstore(0x1f00, prod)
+            
+                prod := mulmod(mload(0x1360), prod, f_q)
+                mstore(0x1f20, prod)
+            
+                prod := mulmod(mload(0x13a0), prod, f_q)
+                mstore(0x1f40, prod)
+            
+                prod := mulmod(mload(0x13e0), prod, f_q)
+                mstore(0x1f60, prod)
+            
+                prod := mulmod(mload(0x1420), prod, f_q)
+                mstore(0x1f80, prod)
+            
+                prod := mulmod(mload(0x1460), prod, f_q)
+                mstore(0x1fa0, prod)
+            
+                prod := mulmod(mload(0x14a0), prod, f_q)
+                mstore(0x1fc0, prod)
+            
+                prod := mulmod(mload(0x14e0), prod, f_q)
+                mstore(0x1fe0, prod)
+            
+                prod := mulmod(mload(0x1520), prod, f_q)
+                mstore(0x2000, prod)
+            
+                prod := mulmod(mload(0x1560), prod, f_q)
+                mstore(0x2020, prod)
+            
+                prod := mulmod(mload(0x15a0), prod, f_q)
+                mstore(0x2040, prod)
+            
+                prod := mulmod(mload(0x15e0), prod, f_q)
+                mstore(0x2060, prod)
+            
+                prod := mulmod(mload(0x1620), prod, f_q)
+                mstore(0x2080, prod)
+            
+                prod := mulmod(mload(0x1660), prod, f_q)
+                mstore(0x20a0, prod)
+            
+                prod := mulmod(mload(0x16a0), prod, f_q)
+                mstore(0x20c0, prod)
+            
+                prod := mulmod(mload(0x16e0), prod, f_q)
+                mstore(0x20e0, prod)
+            
+                prod := mulmod(mload(0x1720), prod, f_q)
+                mstore(0x2100, prod)
+            
+                prod := mulmod(mload(0x1760), prod, f_q)
+                mstore(0x2120, prod)
+            
+                prod := mulmod(mload(0x17a0), prod, f_q)
+                mstore(0x2140, prod)
+            
+                prod := mulmod(mload(0x17e0), prod, f_q)
+                mstore(0x2160, prod)
+            
+                prod := mulmod(mload(0x1820), prod, f_q)
+                mstore(0x2180, prod)
+            
+                prod := mulmod(mload(0x1860), prod, f_q)
+                mstore(0x21a0, prod)
+            
+                prod := mulmod(mload(0x18a0), prod, f_q)
+                mstore(0x21c0, prod)
+            
+                prod := mulmod(mload(0x18e0), prod, f_q)
+                mstore(0x21e0, prod)
+            
+                prod := mulmod(mload(0x1920), prod, f_q)
+                mstore(0x2200, prod)
+            
+                prod := mulmod(mload(0x1960), prod, f_q)
+                mstore(0x2220, prod)
+            
+                prod := mulmod(mload(0x19a0), prod, f_q)
+                mstore(0x2240, prod)
+            
+                prod := mulmod(mload(0x19e0), prod, f_q)
+                mstore(0x2260, prod)
+            
+                prod := mulmod(mload(0x1a20), prod, f_q)
+                mstore(0x2280, prod)
+            
+                prod := mulmod(mload(0x1a60), prod, f_q)
+                mstore(0x22a0, prod)
+            
+                prod := mulmod(mload(0x1aa0), prod, f_q)
+                mstore(0x22c0, prod)
+            
+                prod := mulmod(mload(0x1ae0), prod, f_q)
+                mstore(0x22e0, prod)
+            
+                prod := mulmod(mload(0x1b20), prod, f_q)
+                mstore(0x2300, prod)
+            
+                prod := mulmod(mload(0x1b60), prod, f_q)
+                mstore(0x2320, prod)
+            
+                prod := mulmod(mload(0x1ba0), prod, f_q)
+                mstore(0x2340, prod)
+            
+                prod := mulmod(mload(0x1be0), prod, f_q)
+                mstore(0x2360, prod)
+            
+                prod := mulmod(mload(0x1c20), prod, f_q)
+                mstore(0x2380, prod)
+            
+                prod := mulmod(mload(0x1c60), prod, f_q)
+                mstore(0x23a0, prod)
+            
+                prod := mulmod(mload(0x1ca0), prod, f_q)
+                mstore(0x23c0, prod)
+            
+                prod := mulmod(mload(0x1ce0), prod, f_q)
+                mstore(0x23e0, prod)
+            
+                prod := mulmod(mload(0x1d20), prod, f_q)
+                mstore(0x2400, prod)
+            
+                prod := mulmod(mload(0x1d60), prod, f_q)
+                mstore(0x2420, prod)
+            
+                prod := mulmod(mload(0x1da0), prod, f_q)
+                mstore(0x2440, prod)
+            
+                prod := mulmod(mload(0x1000), prod, f_q)
+                mstore(0x2460, prod)
+            
+        }
+mstore(0x24a0, 32)
+mstore(0x24c0, 32)
+mstore(0x24e0, 32)
+mstore(0x2500, mload(0x2460))
+mstore(0x2520, 21888242871839275222246405745257275088548364400416034343698204186575808495615)
+mstore(0x2540, 21888242871839275222246405745257275088548364400416034343698204186575808495617)
+success := and(eq(staticcall(gas(), 0x5, 0x24a0, 0xc0, 0x2480, 0x20), 1), success)
+{
+            
+            let inv := mload(0x2480)
+            let v
+        
+                    v := mload(0x1000)
+                    mstore(4096, mulmod(mload(0x2440), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1da0)
+                    mstore(7584, mulmod(mload(0x2420), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1d60)
+                    mstore(7520, mulmod(mload(0x2400), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1d20)
+                    mstore(7456, mulmod(mload(0x23e0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1ce0)
+                    mstore(7392, mulmod(mload(0x23c0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1ca0)
+                    mstore(7328, mulmod(mload(0x23a0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1c60)
+                    mstore(7264, mulmod(mload(0x2380), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1c20)
+                    mstore(7200, mulmod(mload(0x2360), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1be0)
+                    mstore(7136, mulmod(mload(0x2340), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1ba0)
+                    mstore(7072, mulmod(mload(0x2320), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1b60)
+                    mstore(7008, mulmod(mload(0x2300), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1b20)
+                    mstore(6944, mulmod(mload(0x22e0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1ae0)
+                    mstore(6880, mulmod(mload(0x22c0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1aa0)
+                    mstore(6816, mulmod(mload(0x22a0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1a60)
+                    mstore(6752, mulmod(mload(0x2280), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1a20)
+                    mstore(6688, mulmod(mload(0x2260), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x19e0)
+                    mstore(6624, mulmod(mload(0x2240), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x19a0)
+                    mstore(6560, mulmod(mload(0x2220), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1960)
+                    mstore(6496, mulmod(mload(0x2200), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1920)
+                    mstore(6432, mulmod(mload(0x21e0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x18e0)
+                    mstore(6368, mulmod(mload(0x21c0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x18a0)
+                    mstore(6304, mulmod(mload(0x21a0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1860)
+                    mstore(6240, mulmod(mload(0x2180), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1820)
+                    mstore(6176, mulmod(mload(0x2160), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x17e0)
+                    mstore(6112, mulmod(mload(0x2140), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x17a0)
+                    mstore(6048, mulmod(mload(0x2120), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1760)
+                    mstore(5984, mulmod(mload(0x2100), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1720)
+                    mstore(5920, mulmod(mload(0x20e0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x16e0)
+                    mstore(5856, mulmod(mload(0x20c0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x16a0)
+                    mstore(5792, mulmod(mload(0x20a0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1660)
+                    mstore(5728, mulmod(mload(0x2080), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1620)
+                    mstore(5664, mulmod(mload(0x2060), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x15e0)
+                    mstore(5600, mulmod(mload(0x2040), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x15a0)
+                    mstore(5536, mulmod(mload(0x2020), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1560)
+                    mstore(5472, mulmod(mload(0x2000), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1520)
+                    mstore(5408, mulmod(mload(0x1fe0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x14e0)
+                    mstore(5344, mulmod(mload(0x1fc0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x14a0)
+                    mstore(5280, mulmod(mload(0x1fa0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1460)
+                    mstore(5216, mulmod(mload(0x1f80), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1420)
+                    mstore(5152, mulmod(mload(0x1f60), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x13e0)
+                    mstore(5088, mulmod(mload(0x1f40), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x13a0)
+                    mstore(5024, mulmod(mload(0x1f20), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1360)
+                    mstore(4960, mulmod(mload(0x1f00), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1320)
+                    mstore(4896, mulmod(mload(0x1ee0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x12e0)
+                    mstore(4832, mulmod(mload(0x1ec0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x12a0)
+                    mstore(4768, mulmod(mload(0x1ea0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1260)
+                    mstore(4704, mulmod(mload(0x1e80), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1220)
+                    mstore(4640, mulmod(mload(0x1e60), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x11e0)
+                    mstore(4576, mulmod(mload(0x1e40), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x11a0)
+                    mstore(4512, mulmod(mload(0x1e20), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1160)
+                    mstore(4448, mulmod(mload(0x1e00), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x1120)
+                    mstore(4384, mulmod(mload(0x1de0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x10e0)
+                    mstore(4320, mulmod(mload(0x1dc0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x10a0)
+                    mstore(4256, mulmod(mload(0x1060), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                mstore(0x1060, inv)
+
+        }
+mstore(0x2560, mulmod(mload(0x1040), mload(0x1060), f_q))
+mstore(0x2580, mulmod(mload(0x1080), mload(0x10a0), f_q))
+mstore(0x25a0, mulmod(mload(0x10c0), mload(0x10e0), f_q))
+mstore(0x25c0, mulmod(mload(0x1100), mload(0x1120), f_q))
+mstore(0x25e0, mulmod(mload(0x1140), mload(0x1160), f_q))
+mstore(0x2600, mulmod(mload(0x1180), mload(0x11a0), f_q))
+mstore(0x2620, mulmod(mload(0x11c0), mload(0x11e0), f_q))
+mstore(0x2640, mulmod(mload(0x1200), mload(0x1220), f_q))
+mstore(0x2660, mulmod(mload(0x1240), mload(0x1260), f_q))
+mstore(0x2680, mulmod(mload(0x1280), mload(0x12a0), f_q))
+mstore(0x26a0, mulmod(mload(0x12c0), mload(0x12e0), f_q))
+mstore(0x26c0, mulmod(mload(0x1300), mload(0x1320), f_q))
+mstore(0x26e0, mulmod(mload(0x1340), mload(0x1360), f_q))
+mstore(0x2700, mulmod(mload(0x1380), mload(0x13a0), f_q))
+mstore(0x2720, mulmod(mload(0x13c0), mload(0x13e0), f_q))
+mstore(0x2740, mulmod(mload(0x1400), mload(0x1420), f_q))
+mstore(0x2760, mulmod(mload(0x1440), mload(0x1460), f_q))
+mstore(0x2780, mulmod(mload(0x1480), mload(0x14a0), f_q))
+mstore(0x27a0, mulmod(mload(0x14c0), mload(0x14e0), f_q))
+mstore(0x27c0, mulmod(mload(0x1500), mload(0x1520), f_q))
+mstore(0x27e0, mulmod(mload(0x1540), mload(0x1560), f_q))
+mstore(0x2800, mulmod(mload(0x1580), mload(0x15a0), f_q))
+mstore(0x2820, mulmod(mload(0x15c0), mload(0x15e0), f_q))
+mstore(0x2840, mulmod(mload(0x1600), mload(0x1620), f_q))
+mstore(0x2860, mulmod(mload(0x1640), mload(0x1660), f_q))
+mstore(0x2880, mulmod(mload(0x1680), mload(0x16a0), f_q))
+mstore(0x28a0, mulmod(mload(0x16c0), mload(0x16e0), f_q))
+mstore(0x28c0, mulmod(mload(0x1700), mload(0x1720), f_q))
+mstore(0x28e0, mulmod(mload(0x1740), mload(0x1760), f_q))
+mstore(0x2900, mulmod(mload(0x1780), mload(0x17a0), f_q))
+mstore(0x2920, mulmod(mload(0x17c0), mload(0x17e0), f_q))
+mstore(0x2940, mulmod(mload(0x1800), mload(0x1820), f_q))
+mstore(0x2960, mulmod(mload(0x1840), mload(0x1860), f_q))
+mstore(0x2980, mulmod(mload(0x1880), mload(0x18a0), f_q))
+mstore(0x29a0, mulmod(mload(0x18c0), mload(0x18e0), f_q))
+mstore(0x29c0, mulmod(mload(0x1900), mload(0x1920), f_q))
+mstore(0x29e0, mulmod(mload(0x1940), mload(0x1960), f_q))
+mstore(0x2a00, mulmod(mload(0x1980), mload(0x19a0), f_q))
+mstore(0x2a20, mulmod(mload(0x19c0), mload(0x19e0), f_q))
+mstore(0x2a40, mulmod(mload(0x1a00), mload(0x1a20), f_q))
+mstore(0x2a60, mulmod(mload(0x1a40), mload(0x1a60), f_q))
+mstore(0x2a80, mulmod(mload(0x1a80), mload(0x1aa0), f_q))
+mstore(0x2aa0, mulmod(mload(0x1ac0), mload(0x1ae0), f_q))
+mstore(0x2ac0, mulmod(mload(0x1b00), mload(0x1b20), f_q))
+mstore(0x2ae0, mulmod(mload(0x1b40), mload(0x1b60), f_q))
+mstore(0x2b00, mulmod(mload(0x1b80), mload(0x1ba0), f_q))
+mstore(0x2b20, mulmod(mload(0x1bc0), mload(0x1be0), f_q))
+mstore(0x2b40, mulmod(mload(0x1c00), mload(0x1c20), f_q))
+mstore(0x2b60, mulmod(mload(0x1c40), mload(0x1c60), f_q))
+mstore(0x2b80, mulmod(mload(0x1c80), mload(0x1ca0), f_q))
+mstore(0x2ba0, mulmod(mload(0x1cc0), mload(0x1ce0), f_q))
+mstore(0x2bc0, mulmod(mload(0x1d00), mload(0x1d20), f_q))
+mstore(0x2be0, mulmod(mload(0x1d40), mload(0x1d60), f_q))
+mstore(0x2c00, mulmod(mload(0x1d80), mload(0x1da0), f_q))
+{
+            let result := mulmod(mload(0x2640), mload(0xa0), f_q)
+result := addmod(mulmod(mload(0x2660), mload(0xc0), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2680), mload(0xe0), f_q), result, f_q)
+result := addmod(mulmod(mload(0x26a0), mload(0x100), f_q), result, f_q)
+result := addmod(mulmod(mload(0x26c0), mload(0x120), f_q), result, f_q)
+result := addmod(mulmod(mload(0x26e0), mload(0x140), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2700), mload(0x160), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2720), mload(0x180), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2740), mload(0x1a0), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2760), mload(0x1c0), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2780), mload(0x1e0), f_q), result, f_q)
+result := addmod(mulmod(mload(0x27a0), mload(0x200), f_q), result, f_q)
+result := addmod(mulmod(mload(0x27c0), mload(0x220), f_q), result, f_q)
+result := addmod(mulmod(mload(0x27e0), mload(0x240), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2800), mload(0x260), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2820), mload(0x280), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2840), mload(0x2a0), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2860), mload(0x2c0), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2880), mload(0x2e0), f_q), result, f_q)
+result := addmod(mulmod(mload(0x28a0), mload(0x300), f_q), result, f_q)
+result := addmod(mulmod(mload(0x28c0), mload(0x320), f_q), result, f_q)
+result := addmod(mulmod(mload(0x28e0), mload(0x340), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2900), mload(0x360), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2920), mload(0x380), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2940), mload(0x3a0), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2960), mload(0x3c0), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2980), mload(0x3e0), f_q), result, f_q)
+result := addmod(mulmod(mload(0x29a0), mload(0x400), f_q), result, f_q)
+result := addmod(mulmod(mload(0x29c0), mload(0x420), f_q), result, f_q)
+result := addmod(mulmod(mload(0x29e0), mload(0x440), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2a00), mload(0x460), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2a20), mload(0x480), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2a40), mload(0x4a0), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2a60), mload(0x4c0), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2a80), mload(0x4e0), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2aa0), mload(0x500), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2ac0), mload(0x520), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2ae0), mload(0x540), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2b00), mload(0x560), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2b20), mload(0x580), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2b40), mload(0x5a0), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2b60), mload(0x5c0), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2b80), mload(0x5e0), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2ba0), mload(0x600), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2bc0), mload(0x620), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2be0), mload(0x640), f_q), result, f_q)
+result := addmod(mulmod(mload(0x2c00), mload(0x660), f_q), result, f_q)
+mstore(11296, result)
+        }
+mstore(0x2c40, mulmod(mload(0xa60), mload(0xa40), f_q))
+mstore(0x2c60, addmod(mload(0xa20), mload(0x2c40), f_q))
+mstore(0x2c80, addmod(mload(0x2c60), sub(f_q, mload(0xa80)), f_q))
+mstore(0x2ca0, mulmod(mload(0x2c80), mload(0xac0), f_q))
+mstore(0x2cc0, mulmod(mload(0x900), mload(0x2ca0), f_q))
+mstore(0x2ce0, addmod(1, sub(f_q, mload(0xb60)), f_q))
+mstore(0x2d00, mulmod(mload(0x2ce0), mload(0x2640), f_q))
+mstore(0x2d20, addmod(mload(0x2cc0), mload(0x2d00), f_q))
+mstore(0x2d40, mulmod(mload(0x900), mload(0x2d20), f_q))
+mstore(0x2d60, mulmod(mload(0xc20), mload(0xc20), f_q))
+mstore(0x2d80, addmod(mload(0x2d60), sub(f_q, mload(0xc20)), f_q))
+mstore(0x2da0, mulmod(mload(0x2d80), mload(0x2560), f_q))
+mstore(0x2dc0, addmod(mload(0x2d40), mload(0x2da0), f_q))
+mstore(0x2de0, mulmod(mload(0x900), mload(0x2dc0), f_q))
+mstore(0x2e00, addmod(mload(0xbc0), sub(f_q, mload(0xba0)), f_q))
+mstore(0x2e20, mulmod(mload(0x2e00), mload(0x2640), f_q))
+mstore(0x2e40, addmod(mload(0x2de0), mload(0x2e20), f_q))
+mstore(0x2e60, mulmod(mload(0x900), mload(0x2e40), f_q))
+mstore(0x2e80, addmod(mload(0xc20), sub(f_q, mload(0xc00)), f_q))
+mstore(0x2ea0, mulmod(mload(0x2e80), mload(0x2640), f_q))
+mstore(0x2ec0, addmod(mload(0x2e60), mload(0x2ea0), f_q))
+mstore(0x2ee0, mulmod(mload(0x900), mload(0x2ec0), f_q))
+mstore(0x2f00, addmod(1, sub(f_q, mload(0x2560)), f_q))
+mstore(0x2f20, addmod(mload(0x2580), mload(0x25a0), f_q))
+mstore(0x2f40, addmod(mload(0x2f20), mload(0x25c0), f_q))
+mstore(0x2f60, addmod(mload(0x2f40), mload(0x25e0), f_q))
+mstore(0x2f80, addmod(mload(0x2f60), mload(0x2600), f_q))
+mstore(0x2fa0, addmod(mload(0x2f80), mload(0x2620), f_q))
+mstore(0x2fc0, addmod(mload(0x2f00), sub(f_q, mload(0x2fa0)), f_q))
+mstore(0x2fe0, mulmod(mload(0xb00), mload(0x740), f_q))
+mstore(0x3000, addmod(mload(0xaa0), mload(0x2fe0), f_q))
+mstore(0x3020, addmod(mload(0x3000), mload(0x7a0), f_q))
+mstore(0x3040, mulmod(mload(0x3020), mload(0xb80), f_q))
+mstore(0x3060, mulmod(1, mload(0x740), f_q))
+mstore(0x3080, mulmod(mload(0x9e0), mload(0x3060), f_q))
+mstore(0x30a0, addmod(mload(0xaa0), mload(0x3080), f_q))
+mstore(0x30c0, addmod(mload(0x30a0), mload(0x7a0), f_q))
+mstore(0x30e0, mulmod(mload(0x30c0), mload(0xb60), f_q))
+mstore(0x3100, addmod(mload(0x3040), sub(f_q, mload(0x30e0)), f_q))
+mstore(0x3120, mulmod(mload(0x3100), mload(0x2fc0), f_q))
+mstore(0x3140, addmod(mload(0x2ee0), mload(0x3120), f_q))
+mstore(0x3160, mulmod(mload(0x900), mload(0x3140), f_q))
+mstore(0x3180, mulmod(mload(0xb20), mload(0x740), f_q))
+mstore(0x31a0, addmod(mload(0xa20), mload(0x3180), f_q))
+mstore(0x31c0, addmod(mload(0x31a0), mload(0x7a0), f_q))
+mstore(0x31e0, mulmod(mload(0x31c0), mload(0xbe0), f_q))
+mstore(0x3200, mulmod(4131629893567559867359510883348571134090853742863529169391034518566172092834, mload(0x740), f_q))
+mstore(0x3220, mulmod(mload(0x9e0), mload(0x3200), f_q))
+mstore(0x3240, addmod(mload(0xa20), mload(0x3220), f_q))
+mstore(0x3260, addmod(mload(0x3240), mload(0x7a0), f_q))
+mstore(0x3280, mulmod(mload(0x3260), mload(0xbc0), f_q))
+mstore(0x32a0, addmod(mload(0x31e0), sub(f_q, mload(0x3280)), f_q))
+mstore(0x32c0, mulmod(mload(0x32a0), mload(0x2fc0), f_q))
+mstore(0x32e0, addmod(mload(0x3160), mload(0x32c0), f_q))
+mstore(0x3300, mulmod(mload(0x900), mload(0x32e0), f_q))
+mstore(0x3320, mulmod(mload(0xb40), mload(0x740), f_q))
+mstore(0x3340, addmod(mload(0x2c20), mload(0x3320), f_q))
+mstore(0x3360, addmod(mload(0x3340), mload(0x7a0), f_q))
+mstore(0x3380, mulmod(mload(0x3360), mload(0xc40), f_q))
+mstore(0x33a0, mulmod(8910878055287538404433155982483128285667088683464058436815641868457422632747, mload(0x740), f_q))
+mstore(0x33c0, mulmod(mload(0x9e0), mload(0x33a0), f_q))
+mstore(0x33e0, addmod(mload(0x2c20), mload(0x33c0), f_q))
+mstore(0x3400, addmod(mload(0x33e0), mload(0x7a0), f_q))
+mstore(0x3420, mulmod(mload(0x3400), mload(0xc20), f_q))
+mstore(0x3440, addmod(mload(0x3380), sub(f_q, mload(0x3420)), f_q))
+mstore(0x3460, mulmod(mload(0x3440), mload(0x2fc0), f_q))
+mstore(0x3480, addmod(mload(0x3300), mload(0x3460), f_q))
+mstore(0x34a0, mulmod(mload(0xfe0), mload(0xfe0), f_q))
+mstore(0x34c0, mulmod(1, mload(0xfe0), f_q))
+mstore(0x34e0, mulmod(mload(0x3480), mload(0x1000), f_q))
+mstore(0x3500, mulmod(mload(0xe00), mload(0x9e0), f_q))
+mstore(0x3520, mulmod(mload(0x3500), mload(0x9e0), f_q))
+mstore(0x3540, mulmod(mload(0x9e0), 19343146892916237615654043009195602139873661276405922646774320324892220692243, f_q))
+mstore(0x3560, addmod(mload(0xd80), sub(f_q, mload(0x3540)), f_q))
+mstore(0x3580, mulmod(mload(0x9e0), 1, f_q))
+mstore(0x35a0, addmod(mload(0xd80), sub(f_q, mload(0x3580)), f_q))
+mstore(0x35c0, mulmod(mload(0x9e0), 4443263508319656594054352481848447997537391617204595126809744742387004492585, f_q))
+mstore(0x35e0, addmod(mload(0xd80), sub(f_q, mload(0x35c0)), f_q))
+mstore(0x3600, mulmod(mload(0x9e0), 19671853614403325433334785013442879012032153960035114761748042217991436932142, f_q))
+mstore(0x3620, addmod(mload(0xd80), sub(f_q, mload(0x3600)), f_q))
+mstore(0x3640, mulmod(mload(0x9e0), 14978482549995272940995530918097137114536569299992887607386680153997031922392, f_q))
+mstore(0x3660, addmod(mload(0xd80), sub(f_q, mload(0x3640)), f_q))
+mstore(0x3680, mulmod(6429953344696991278576351080874112723817581992562333709956802483867864219907, mload(0x3500), f_q))
+mstore(0x36a0, mulmod(mload(0x3680), 1, f_q))
+{
+            let result := mulmod(mload(0xd80), mload(0x3680), f_q)
+result := addmod(mulmod(mload(0x9e0), sub(f_q, mload(0x36a0)), f_q), result, f_q)
+mstore(14016, result)
+        }
+mstore(0x36e0, mulmod(7994814150416715914263940213242976384465612661982219046850769428271885446695, mload(0x3500), f_q))
+mstore(0x3700, mulmod(mload(0x36e0), 4443263508319656594054352481848447997537391617204595126809744742387004492585, f_q))
+{
+            let result := mulmod(mload(0xd80), mload(0x36e0), f_q)
+result := addmod(mulmod(mload(0x9e0), sub(f_q, mload(0x3700)), f_q), result, f_q)
+mstore(14112, result)
+        }
+mstore(0x3740, mulmod(20734992668899217319464998071864428847715309308997442417757509835792983423210, mload(0x3500), f_q))
+mstore(0x3760, mulmod(mload(0x3740), 19671853614403325433334785013442879012032153960035114761748042217991436932142, f_q))
+{
+            let result := mulmod(mload(0xd80), mload(0x3740), f_q)
+result := addmod(mulmod(mload(0x9e0), sub(f_q, mload(0x3760)), f_q), result, f_q)
+mstore(14208, result)
+        }
+mstore(0x37a0, mulmod(13186392197291051195992994838235220685728012647809583173547162836092719485706, mload(0x3500), f_q))
+mstore(0x37c0, mulmod(mload(0x37a0), 14978482549995272940995530918097137114536569299992887607386680153997031922392, f_q))
+{
+            let result := mulmod(mload(0xd80), mload(0x37a0), f_q)
+result := addmod(mulmod(mload(0x9e0), sub(f_q, mload(0x37c0)), f_q), result, f_q)
+mstore(14304, result)
+        }
+mstore(0x3800, mulmod(1, mload(0x35a0), f_q))
+mstore(0x3820, mulmod(mload(0x3800), mload(0x35e0), f_q))
+mstore(0x3840, mulmod(mload(0x3820), mload(0x3620), f_q))
+mstore(0x3860, mulmod(mload(0x3840), mload(0x3660), f_q))
+mstore(0x3880, mulmod(8865185104791151038992016816951843948912950129749589077466598763729981416024, mload(0xe00), f_q))
+mstore(0x38a0, mulmod(mload(0x3880), 1, f_q))
+{
+            let result := mulmod(mload(0xd80), mload(0x3880), f_q)
+result := addmod(mulmod(mload(0x9e0), sub(f_q, mload(0x38a0)), f_q), result, f_q)
+mstore(14528, result)
+        }
+mstore(0x38e0, mulmod(1920141492972861206234063232794139068044420595876335430661953969487446530949, mload(0xe00), f_q))
+mstore(0x3900, mulmod(mload(0x38e0), 4443263508319656594054352481848447997537391617204595126809744742387004492585, f_q))
+{
+            let result := mulmod(mload(0xd80), mload(0x38e0), f_q)
+result := addmod(mulmod(mload(0x9e0), sub(f_q, mload(0x3900)), f_q), result, f_q)
+mstore(14624, result)
+        }
+mstore(0x3940, mulmod(7626662163151901913216124508573589189846342273603633283678198124746738504907, mload(0xe00), f_q))
+mstore(0x3960, mulmod(mload(0x3940), 19343146892916237615654043009195602139873661276405922646774320324892220692243, f_q))
+{
+            let result := mulmod(mload(0xd80), mload(0x3940), f_q)
+result := addmod(mulmod(mload(0x9e0), sub(f_q, mload(0x3960)), f_q), result, f_q)
+mstore(14720, result)
+        }
+mstore(0x39a0, mulmod(mload(0x3820), mload(0x3560), f_q))
+mstore(0x39c0, mulmod(17444979363519618628192053263408827091010972783211439216888459444188804003033, mload(0x9e0), f_q))
+mstore(0x39e0, mulmod(mload(0x39c0), 1, f_q))
+{
+            let result := mulmod(mload(0xd80), mload(0x39c0), f_q)
+result := addmod(mulmod(mload(0x9e0), sub(f_q, mload(0x39e0)), f_q), result, f_q)
+mstore(14848, result)
+        }
+mstore(0x3a20, mulmod(4443263508319656594054352481848447997537391617204595126809744742387004492584, mload(0x9e0), f_q))
+mstore(0x3a40, mulmod(mload(0x3a20), 4443263508319656594054352481848447997537391617204595126809744742387004492585, f_q))
+{
+            let result := mulmod(mload(0xd80), mload(0x3a20), f_q)
+result := addmod(mulmod(mload(0x9e0), sub(f_q, mload(0x3a40)), f_q), result, f_q)
+mstore(14944, result)
+        }
+{
+            let result := mulmod(mload(0xd80), 1, f_q)
+result := addmod(mulmod(mload(0x9e0), 21888242871839275222246405745257275088548364400416034343698204186575808495616, f_q), result, f_q)
+mstore(14976, result)
+        }
+{
+            let prod := mload(0x36c0)
+
+                prod := mulmod(mload(0x3720), prod, f_q)
+                mstore(0x3aa0, prod)
+            
+                prod := mulmod(mload(0x3780), prod, f_q)
+                mstore(0x3ac0, prod)
+            
+                prod := mulmod(mload(0x37e0), prod, f_q)
+                mstore(0x3ae0, prod)
+            
+                prod := mulmod(mload(0x38c0), prod, f_q)
+                mstore(0x3b00, prod)
+            
+                prod := mulmod(mload(0x3920), prod, f_q)
+                mstore(0x3b20, prod)
+            
+                prod := mulmod(mload(0x3980), prod, f_q)
+                mstore(0x3b40, prod)
+            
+                prod := mulmod(mload(0x39a0), prod, f_q)
+                mstore(0x3b60, prod)
+            
+                prod := mulmod(mload(0x3a00), prod, f_q)
+                mstore(0x3b80, prod)
+            
+                prod := mulmod(mload(0x3a60), prod, f_q)
+                mstore(0x3ba0, prod)
+            
+                prod := mulmod(mload(0x3820), prod, f_q)
+                mstore(0x3bc0, prod)
+            
+                prod := mulmod(mload(0x3a80), prod, f_q)
+                mstore(0x3be0, prod)
+            
+                prod := mulmod(mload(0x3800), prod, f_q)
+                mstore(0x3c00, prod)
+            
+        }
+mstore(0x3c40, 32)
+mstore(0x3c60, 32)
+mstore(0x3c80, 32)
+mstore(0x3ca0, mload(0x3c00))
+mstore(0x3cc0, 21888242871839275222246405745257275088548364400416034343698204186575808495615)
+mstore(0x3ce0, 21888242871839275222246405745257275088548364400416034343698204186575808495617)
+success := and(eq(staticcall(gas(), 0x5, 0x3c40, 0xc0, 0x3c20, 0x20), 1), success)
+{
+            
+            let inv := mload(0x3c20)
+            let v
+        
+                    v := mload(0x3800)
+                    mstore(14336, mulmod(mload(0x3be0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x3a80)
+                    mstore(14976, mulmod(mload(0x3bc0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x3820)
+                    mstore(14368, mulmod(mload(0x3ba0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x3a60)
+                    mstore(14944, mulmod(mload(0x3b80), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x3a00)
+                    mstore(14848, mulmod(mload(0x3b60), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x39a0)
+                    mstore(14752, mulmod(mload(0x3b40), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x3980)
+                    mstore(14720, mulmod(mload(0x3b20), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x3920)
+                    mstore(14624, mulmod(mload(0x3b00), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x38c0)
+                    mstore(14528, mulmod(mload(0x3ae0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x37e0)
+                    mstore(14304, mulmod(mload(0x3ac0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x3780)
+                    mstore(14208, mulmod(mload(0x3aa0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x3720)
+                    mstore(14112, mulmod(mload(0x36c0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                mstore(0x36c0, inv)
+
+        }
+{
+            let result := mload(0x36c0)
+result := addmod(mload(0x3720), result, f_q)
+result := addmod(mload(0x3780), result, f_q)
+result := addmod(mload(0x37e0), result, f_q)
+mstore(15616, result)
+        }
+mstore(0x3d20, mulmod(mload(0x3860), mload(0x39a0), f_q))
+{
+            let result := mload(0x38c0)
+result := addmod(mload(0x3920), result, f_q)
+result := addmod(mload(0x3980), result, f_q)
+mstore(15680, result)
+        }
+mstore(0x3d60, mulmod(mload(0x3860), mload(0x3820), f_q))
+{
+            let result := mload(0x3a00)
+result := addmod(mload(0x3a60), result, f_q)
+mstore(15744, result)
+        }
+mstore(0x3da0, mulmod(mload(0x3860), mload(0x3800), f_q))
+{
+            let result := mload(0x3a80)
+mstore(15808, result)
+        }
+{
+            let prod := mload(0x3d00)
+
+                prod := mulmod(mload(0x3d40), prod, f_q)
+                mstore(0x3de0, prod)
+            
+                prod := mulmod(mload(0x3d80), prod, f_q)
+                mstore(0x3e00, prod)
+            
+                prod := mulmod(mload(0x3dc0), prod, f_q)
+                mstore(0x3e20, prod)
+            
+        }
+mstore(0x3e60, 32)
+mstore(0x3e80, 32)
+mstore(0x3ea0, 32)
+mstore(0x3ec0, mload(0x3e20))
+mstore(0x3ee0, 21888242871839275222246405745257275088548364400416034343698204186575808495615)
+mstore(0x3f00, 21888242871839275222246405745257275088548364400416034343698204186575808495617)
+success := and(eq(staticcall(gas(), 0x5, 0x3e60, 0xc0, 0x3e40, 0x20), 1), success)
+{
+            
+            let inv := mload(0x3e40)
+            let v
+        
+                    v := mload(0x3dc0)
+                    mstore(15808, mulmod(mload(0x3e00), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x3d80)
+                    mstore(15744, mulmod(mload(0x3de0), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                
+                    v := mload(0x3d40)
+                    mstore(15680, mulmod(mload(0x3d00), inv, f_q))
+                    inv := mulmod(v, inv, f_q)
+                mstore(0x3d00, inv)
+
+        }
+mstore(0x3f20, mulmod(mload(0x3d20), mload(0x3d40), f_q))
+mstore(0x3f40, mulmod(mload(0x3d60), mload(0x3d80), f_q))
+mstore(0x3f60, mulmod(mload(0x3da0), mload(0x3dc0), f_q))
+mstore(0x3f80, mulmod(mload(0xc80), mload(0xc80), f_q))
+mstore(0x3fa0, mulmod(mload(0x3f80), mload(0xc80), f_q))
+mstore(0x3fc0, mulmod(mload(0x3fa0), mload(0xc80), f_q))
+mstore(0x3fe0, mulmod(mload(0x3fc0), mload(0xc80), f_q))
+mstore(0x4000, mulmod(mload(0x3fe0), mload(0xc80), f_q))
+mstore(0x4020, mulmod(mload(0x4000), mload(0xc80), f_q))
+mstore(0x4040, mulmod(mload(0xce0), mload(0xce0), f_q))
+mstore(0x4060, mulmod(mload(0x4040), mload(0xce0), f_q))
+mstore(0x4080, mulmod(mload(0x4060), mload(0xce0), f_q))
+{
+            let result := mulmod(mload(0xa20), mload(0x36c0), f_q)
+result := addmod(mulmod(mload(0xa40), mload(0x3720), f_q), result, f_q)
+result := addmod(mulmod(mload(0xa60), mload(0x3780), f_q), result, f_q)
+result := addmod(mulmod(mload(0xa80), mload(0x37e0), f_q), result, f_q)
+mstore(16544, result)
+        }
+mstore(0x40c0, mulmod(mload(0x40a0), mload(0x3d00), f_q))
+mstore(0x40e0, mulmod(sub(f_q, mload(0x40c0)), 1, f_q))
+mstore(0x4100, mulmod(mload(0x40e0), 1, f_q))
+mstore(0x4120, mulmod(1, mload(0x3d20), f_q))
+{
+            let result := mulmod(mload(0xb60), mload(0x38c0), f_q)
+result := addmod(mulmod(mload(0xb80), mload(0x3920), f_q), result, f_q)
+result := addmod(mulmod(mload(0xba0), mload(0x3980), f_q), result, f_q)
+mstore(16704, result)
+        }
+mstore(0x4160, mulmod(mload(0x4140), mload(0x3f20), f_q))
+mstore(0x4180, mulmod(sub(f_q, mload(0x4160)), 1, f_q))
+mstore(0x41a0, mulmod(mload(0x4120), 1, f_q))
+{
+            let result := mulmod(mload(0xbc0), mload(0x38c0), f_q)
+result := addmod(mulmod(mload(0xbe0), mload(0x3920), f_q), result, f_q)
+result := addmod(mulmod(mload(0xc00), mload(0x3980), f_q), result, f_q)
+mstore(16832, result)
+        }
+mstore(0x41e0, mulmod(mload(0x41c0), mload(0x3f20), f_q))
+mstore(0x4200, mulmod(sub(f_q, mload(0x41e0)), mload(0xc80), f_q))
+mstore(0x4220, mulmod(mload(0x4120), mload(0xc80), f_q))
+mstore(0x4240, addmod(mload(0x4180), mload(0x4200), f_q))
+mstore(0x4260, mulmod(mload(0x4240), mload(0xce0), f_q))
+mstore(0x4280, mulmod(mload(0x41a0), mload(0xce0), f_q))
+mstore(0x42a0, mulmod(mload(0x4220), mload(0xce0), f_q))
+mstore(0x42c0, addmod(mload(0x4100), mload(0x4260), f_q))
+mstore(0x42e0, mulmod(1, mload(0x3d60), f_q))
+{
+            let result := mulmod(mload(0xc20), mload(0x3a00), f_q)
+result := addmod(mulmod(mload(0xc40), mload(0x3a60), f_q), result, f_q)
+mstore(17152, result)
+        }
+mstore(0x4320, mulmod(mload(0x4300), mload(0x3f40), f_q))
+mstore(0x4340, mulmod(sub(f_q, mload(0x4320)), 1, f_q))
+mstore(0x4360, mulmod(mload(0x42e0), 1, f_q))
+mstore(0x4380, mulmod(mload(0x4340), mload(0x4040), f_q))
+mstore(0x43a0, mulmod(mload(0x4360), mload(0x4040), f_q))
+mstore(0x43c0, addmod(mload(0x42c0), mload(0x4380), f_q))
+mstore(0x43e0, mulmod(1, mload(0x3da0), f_q))
+{
+            let result := mulmod(mload(0xaa0), mload(0x3a80), f_q)
+mstore(17408, result)
+        }
+mstore(0x4420, mulmod(mload(0x4400), mload(0x3f60), f_q))
+mstore(0x4440, mulmod(sub(f_q, mload(0x4420)), 1, f_q))
+mstore(0x4460, mulmod(mload(0x43e0), 1, f_q))
+{
+            let result := mulmod(mload(0xac0), mload(0x3a80), f_q)
+mstore(17536, result)
+        }
+mstore(0x44a0, mulmod(mload(0x4480), mload(0x3f60), f_q))
+mstore(0x44c0, mulmod(sub(f_q, mload(0x44a0)), mload(0xc80), f_q))
+mstore(0x44e0, mulmod(mload(0x43e0), mload(0xc80), f_q))
+mstore(0x4500, addmod(mload(0x4440), mload(0x44c0), f_q))
+{
+            let result := mulmod(mload(0xb00), mload(0x3a80), f_q)
+mstore(17696, result)
+        }
+mstore(0x4540, mulmod(mload(0x4520), mload(0x3f60), f_q))
+mstore(0x4560, mulmod(sub(f_q, mload(0x4540)), mload(0x3f80), f_q))
+mstore(0x4580, mulmod(mload(0x43e0), mload(0x3f80), f_q))
+mstore(0x45a0, addmod(mload(0x4500), mload(0x4560), f_q))
+{
+            let result := mulmod(mload(0xb20), mload(0x3a80), f_q)
+mstore(17856, result)
+        }
+mstore(0x45e0, mulmod(mload(0x45c0), mload(0x3f60), f_q))
+mstore(0x4600, mulmod(sub(f_q, mload(0x45e0)), mload(0x3fa0), f_q))
+mstore(0x4620, mulmod(mload(0x43e0), mload(0x3fa0), f_q))
+mstore(0x4640, addmod(mload(0x45a0), mload(0x4600), f_q))
+{
+            let result := mulmod(mload(0xb40), mload(0x3a80), f_q)
+mstore(18016, result)
+        }
+mstore(0x4680, mulmod(mload(0x4660), mload(0x3f60), f_q))
+mstore(0x46a0, mulmod(sub(f_q, mload(0x4680)), mload(0x3fc0), f_q))
+mstore(0x46c0, mulmod(mload(0x43e0), mload(0x3fc0), f_q))
+mstore(0x46e0, addmod(mload(0x4640), mload(0x46a0), f_q))
+mstore(0x4700, mulmod(mload(0x34c0), mload(0x3da0), f_q))
+{
+            let result := mulmod(mload(0x34e0), mload(0x3a80), f_q)
+mstore(18208, result)
+        }
+mstore(0x4740, mulmod(mload(0x4720), mload(0x3f60), f_q))
+mstore(0x4760, mulmod(sub(f_q, mload(0x4740)), mload(0x3fe0), f_q))
+mstore(0x4780, mulmod(mload(0x43e0), mload(0x3fe0), f_q))
+mstore(0x47a0, mulmod(mload(0x4700), mload(0x3fe0), f_q))
+mstore(0x47c0, addmod(mload(0x46e0), mload(0x4760), f_q))
+{
+            let result := mulmod(mload(0xae0), mload(0x3a80), f_q)
+mstore(18400, result)
+        }
+mstore(0x4800, mulmod(mload(0x47e0), mload(0x3f60), f_q))
+mstore(0x4820, mulmod(sub(f_q, mload(0x4800)), mload(0x4000), f_q))
+mstore(0x4840, mulmod(mload(0x43e0), mload(0x4000), f_q))
+mstore(0x4860, addmod(mload(0x47c0), mload(0x4820), f_q))
+mstore(0x4880, mulmod(mload(0x4860), mload(0x4060), f_q))
+mstore(0x48a0, mulmod(mload(0x4460), mload(0x4060), f_q))
+mstore(0x48c0, mulmod(mload(0x44e0), mload(0x4060), f_q))
+mstore(0x48e0, mulmod(mload(0x4580), mload(0x4060), f_q))
+mstore(0x4900, mulmod(mload(0x4620), mload(0x4060), f_q))
+mstore(0x4920, mulmod(mload(0x46c0), mload(0x4060), f_q))
+mstore(0x4940, mulmod(mload(0x4780), mload(0x4060), f_q))
+mstore(0x4960, mulmod(mload(0x47a0), mload(0x4060), f_q))
+mstore(0x4980, mulmod(mload(0x4840), mload(0x4060), f_q))
+mstore(0x49a0, addmod(mload(0x43c0), mload(0x4880), f_q))
+mstore(0x49c0, mulmod(1, mload(0x3860), f_q))
+mstore(0x49e0, mulmod(1, mload(0xd80), f_q))
+mstore(0x4a00, 0x0000000000000000000000000000000000000000000000000000000000000001)
+                    mstore(0x4a20, 0x0000000000000000000000000000000000000000000000000000000000000002)
+mstore(0x4a40, mload(0x49a0))
+success := and(eq(staticcall(gas(), 0x7, 0x4a00, 0x60, 0x4a00, 0x40), 1), success)
+mstore(0x4a60, mload(0x4a00))
+                    mstore(0x4a80, mload(0x4a20))
+mstore(0x4aa0, mload(0x680))
+                    mstore(0x4ac0, mload(0x6a0))
+success := and(eq(staticcall(gas(), 0x6, 0x4a60, 0x80, 0x4a60, 0x40), 1), success)
+mstore(0x4ae0, mload(0x7e0))
+                    mstore(0x4b00, mload(0x800))
+mstore(0x4b20, mload(0x4280))
+success := and(eq(staticcall(gas(), 0x7, 0x4ae0, 0x60, 0x4ae0, 0x40), 1), success)
+mstore(0x4b40, mload(0x4a60))
+                    mstore(0x4b60, mload(0x4a80))
+mstore(0x4b80, mload(0x4ae0))
+                    mstore(0x4ba0, mload(0x4b00))
+success := and(eq(staticcall(gas(), 0x6, 0x4b40, 0x80, 0x4b40, 0x40), 1), success)
+mstore(0x4bc0, mload(0x820))
+                    mstore(0x4be0, mload(0x840))
+mstore(0x4c00, mload(0x42a0))
+success := and(eq(staticcall(gas(), 0x7, 0x4bc0, 0x60, 0x4bc0, 0x40), 1), success)
+mstore(0x4c20, mload(0x4b40))
+                    mstore(0x4c40, mload(0x4b60))
+mstore(0x4c60, mload(0x4bc0))
+                    mstore(0x4c80, mload(0x4be0))
+success := and(eq(staticcall(gas(), 0x6, 0x4c20, 0x80, 0x4c20, 0x40), 1), success)
+mstore(0x4ca0, mload(0x860))
+                    mstore(0x4cc0, mload(0x880))
+mstore(0x4ce0, mload(0x43a0))
+success := and(eq(staticcall(gas(), 0x7, 0x4ca0, 0x60, 0x4ca0, 0x40), 1), success)
+mstore(0x4d00, mload(0x4c20))
+                    mstore(0x4d20, mload(0x4c40))
+mstore(0x4d40, mload(0x4ca0))
+                    mstore(0x4d60, mload(0x4cc0))
+success := and(eq(staticcall(gas(), 0x6, 0x4d00, 0x80, 0x4d00, 0x40), 1), success)
+mstore(0x4d80, 0x2744f3e69fcfac066e02c04de47b4fe184d0cdd58b06aac455cf452505e4fba5)
+                    mstore(0x4da0, 0x022208ba33f71fcce303d2154e3f1e69dd17bb4527037543696ad41a16bcccd7)
+mstore(0x4dc0, mload(0x48a0))
+success := and(eq(staticcall(gas(), 0x7, 0x4d80, 0x60, 0x4d80, 0x40), 1), success)
+mstore(0x4de0, mload(0x4d00))
+                    mstore(0x4e00, mload(0x4d20))
+mstore(0x4e20, mload(0x4d80))
+                    mstore(0x4e40, mload(0x4da0))
+success := and(eq(staticcall(gas(), 0x6, 0x4de0, 0x80, 0x4de0, 0x40), 1), success)
+mstore(0x4e60, 0x08d54443ad50bd1725a7d034351059e80e1cee1d88602c09f07156e23c042bb4)
+                    mstore(0x4e80, 0x2e83bff04713a03037a0fba8d131faf6b6f4356908b632b937ada664ac40c61f)
+mstore(0x4ea0, mload(0x48c0))
+success := and(eq(staticcall(gas(), 0x7, 0x4e60, 0x60, 0x4e60, 0x40), 1), success)
+mstore(0x4ec0, mload(0x4de0))
+                    mstore(0x4ee0, mload(0x4e00))
+mstore(0x4f00, mload(0x4e60))
+                    mstore(0x4f20, mload(0x4e80))
+success := and(eq(staticcall(gas(), 0x6, 0x4ec0, 0x80, 0x4ec0, 0x40), 1), success)
+mstore(0x4f40, 0x2a2165e9428e17c5e3e7f7862e8290bf5bae45f0164061ae7828d87d433c24bb)
+                    mstore(0x4f60, 0x0f89a6776efe548bf22ea233b4ea25fa751a96901135b554a9a5a35d31b5b32e)
+mstore(0x4f80, mload(0x48e0))
+success := and(eq(staticcall(gas(), 0x7, 0x4f40, 0x60, 0x4f40, 0x40), 1), success)
+mstore(0x4fa0, mload(0x4ec0))
+                    mstore(0x4fc0, mload(0x4ee0))
+mstore(0x4fe0, mload(0x4f40))
+                    mstore(0x5000, mload(0x4f60))
+success := and(eq(staticcall(gas(), 0x6, 0x4fa0, 0x80, 0x4fa0, 0x40), 1), success)
+mstore(0x5020, 0x051e75a8b29459b0ad6ed6831aadf651dddcc2f1a396f5c825cabd65431269e0)
+                    mstore(0x5040, 0x18cf26a2f3470ef157666bf67915b90e422ecd824b7673b0e5b83ae43d7bdf72)
+mstore(0x5060, mload(0x4900))
+success := and(eq(staticcall(gas(), 0x7, 0x5020, 0x60, 0x5020, 0x40), 1), success)
+mstore(0x5080, mload(0x4fa0))
+                    mstore(0x50a0, mload(0x4fc0))
+mstore(0x50c0, mload(0x5020))
+                    mstore(0x50e0, mload(0x5040))
+success := and(eq(staticcall(gas(), 0x6, 0x5080, 0x80, 0x5080, 0x40), 1), success)
+mstore(0x5100, 0x2740756cf775ddbbecf37ca17001de283b6a29bf728029317007df422dba8541)
+                    mstore(0x5120, 0x25e39964fab7e570da8ec17494d84f4db1a844c8a730e1bba2a7b8124d5a8664)
+mstore(0x5140, mload(0x4920))
+success := and(eq(staticcall(gas(), 0x7, 0x5100, 0x60, 0x5100, 0x40), 1), success)
+mstore(0x5160, mload(0x5080))
+                    mstore(0x5180, mload(0x50a0))
+mstore(0x51a0, mload(0x5100))
+                    mstore(0x51c0, mload(0x5120))
+success := and(eq(staticcall(gas(), 0x6, 0x5160, 0x80, 0x5160, 0x40), 1), success)
+mstore(0x51e0, mload(0x940))
+                    mstore(0x5200, mload(0x960))
+mstore(0x5220, mload(0x4940))
+success := and(eq(staticcall(gas(), 0x7, 0x51e0, 0x60, 0x51e0, 0x40), 1), success)
+mstore(0x5240, mload(0x5160))
+                    mstore(0x5260, mload(0x5180))
+mstore(0x5280, mload(0x51e0))
+                    mstore(0x52a0, mload(0x5200))
+success := and(eq(staticcall(gas(), 0x6, 0x5240, 0x80, 0x5240, 0x40), 1), success)
+mstore(0x52c0, mload(0x980))
+                    mstore(0x52e0, mload(0x9a0))
+mstore(0x5300, mload(0x4960))
+success := and(eq(staticcall(gas(), 0x7, 0x52c0, 0x60, 0x52c0, 0x40), 1), success)
+mstore(0x5320, mload(0x5240))
+                    mstore(0x5340, mload(0x5260))
+mstore(0x5360, mload(0x52c0))
+                    mstore(0x5380, mload(0x52e0))
+success := and(eq(staticcall(gas(), 0x6, 0x5320, 0x80, 0x5320, 0x40), 1), success)
+mstore(0x53a0, mload(0x8a0))
+                    mstore(0x53c0, mload(0x8c0))
+mstore(0x53e0, mload(0x4980))
+success := and(eq(staticcall(gas(), 0x7, 0x53a0, 0x60, 0x53a0, 0x40), 1), success)
+mstore(0x5400, mload(0x5320))
+                    mstore(0x5420, mload(0x5340))
+mstore(0x5440, mload(0x53a0))
+                    mstore(0x5460, mload(0x53c0))
+success := and(eq(staticcall(gas(), 0x6, 0x5400, 0x80, 0x5400, 0x40), 1), success)
+mstore(0x5480, mload(0xd20))
+                    mstore(0x54a0, mload(0xd40))
+mstore(0x54c0, sub(f_q, mload(0x49c0)))
+success := and(eq(staticcall(gas(), 0x7, 0x5480, 0x60, 0x5480, 0x40), 1), success)
+mstore(0x54e0, mload(0x5400))
+                    mstore(0x5500, mload(0x5420))
+mstore(0x5520, mload(0x5480))
+                    mstore(0x5540, mload(0x54a0))
+success := and(eq(staticcall(gas(), 0x6, 0x54e0, 0x80, 0x54e0, 0x40), 1), success)
+mstore(0x5560, mload(0xdc0))
+                    mstore(0x5580, mload(0xde0))
+mstore(0x55a0, mload(0x49e0))
+success := and(eq(staticcall(gas(), 0x7, 0x5560, 0x60, 0x5560, 0x40), 1), success)
+mstore(0x55c0, mload(0x54e0))
+                    mstore(0x55e0, mload(0x5500))
+mstore(0x5600, mload(0x5560))
+                    mstore(0x5620, mload(0x5580))
+success := and(eq(staticcall(gas(), 0x6, 0x55c0, 0x80, 0x55c0, 0x40), 1), success)
+mstore(0x5640, mload(0x55c0))
+                    mstore(0x5660, mload(0x55e0))
+mstore(0x5680, 0x198e9393920d483a7260bfb731fb5d25f1aa493335a9e71297e485b7aef312c2)
+            mstore(0x56a0, 0x1800deef121f1e76426a00665e5c4479674322d4f75edadd46debd5cd992f6ed)
+            mstore(0x56c0, 0x090689d0585ff075ec9e99ad690c3395bc4b313370b38ef355acdadcd122975b)
+            mstore(0x56e0, 0x12c85ea5db8c6deb4aab71808dcb408fe3d1e7690c43d37b4ce6cc0166fa7daa)
+mstore(0x5700, mload(0xdc0))
+                    mstore(0x5720, mload(0xde0))
+mstore(0x5740, 0x0181624e80f3d6ae28df7e01eaeab1c0e919877a3b8a6b7fbc69a6817d596ea2)
+            mstore(0x5760, 0x1783d30dcb12d259bb89098addf6280fa4b653be7a152542a28f7b926e27e648)
+            mstore(0x5780, 0x00ae44489d41a0d179e2dfdc03bddd883b7109f8b6ae316a59e815c1a6b35304)
+            mstore(0x57a0, 0x0b2147ab62a386bd63e6de1522109b8c9588ab466f5aadfde8c41ca3749423ee)
+success := and(eq(staticcall(gas(), 0x8, 0x5640, 0x180, 0x5640, 0x20), 1), success)
+success := and(eq(mload(0x5640), 1), success)
+
+            // Revert if anything fails
+            if iszero(success) { revert(0, 0) }
+
+            // Return empty bytes on success
+            return(0, 0)
+
+        }
+    }
+}
+        

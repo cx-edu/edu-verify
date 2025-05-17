@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>毕业生-认证生成</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-start min-h-screen p-4 relative">
+
+    <!-- 成功弹窗 -->
+    <div id="popup" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+            <p class="text-lg mb-4">认证生成成功！</p>
+            <button onclick="handleDownload()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">确认下载</button>
+        </div>
+    </div>
+
+    <!-- 图片预览弹窗 -->
+    <div id="imagePopup" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-4xl max-h-[90vh] overflow-auto">
+            <div class="flex justify-end mb-4">
+                <button onclick="closeImagePopup()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="imageContainer" class="flex flex-wrap gap-4 justify-center">
+                <!-- 图片将在这里动态添加 -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- 网页主题 -->
+    <header class="w-full bg-white shadow-md p-4 text-center text-3xl font-bold mb-6 relative">
+        具有隐私保护的去中心化学历、学位认证系统——毕业生
+    </header>
+    
+    <!-- 页面布局 -->
+    <div class="bg-white shadow-lg rounded-lg p-6 w-3/4 mb-8">
+        <p class="text-center text-gray-700 text-lg">请在下方证书中选择用于生成认证的信息。</p>
+    </div>
+    
+    <!-- 数据表格 -->
+        <div class="bg-white shadow-lg rounded-lg p-6 w-3/4 mb-8">
+            <table class="w-full border-collapse border border-gray-300 text-center">
+            <thead id="table-header">
+                <!-- 表头将由JavaScript动态生成 -->
+                </thead>
+            <tbody id="table-body">
+                <!-- 表格内容将由JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 按钮区域并列 -->
+        <div class="flex space-x-4 mt-4 justify-center">
+            <button onclick="window.location.href='/student/upload'" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">信息有误，重新上传！</button>
+        <button onclick="handleGenerate()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">确认信息，生成认证！</button>
+        </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 从localStorage获取证书数据
+            const responseData = JSON.parse(localStorage.getItem('certificateData'));
+            if (!responseData || !responseData.data.original_data) {
+                alert('未找到证书数据，请重新上传！');
+                window.location.href = '/student/upload';
+                return;
+            }
+
+            const originalData = responseData.data.original_data;
+            const imagesData = responseData.data.images;
+
+            // 获取数据的所有键并重新排序，确保images在最后
+            const keys = Object.keys(originalData).filter(key => key !== 'images');
+            if (originalData.hasOwnProperty('images')) {
+                keys.push('images');
+            }
+
+            // 生成表头
+            const headerRow = document.createElement('tr');
+            headerRow.className = 'bg-gray-200';
+            
+            // 添加序号列
+            headerRow.innerHTML = '<th class="border border-gray-300 p-2 text-center">序号</th>';
+            
+            // 添加其他列和复选框
+            keys.forEach(key => {
+                headerRow.innerHTML += `
+                    <th class="border border-gray-300 p-2 text-center">
+                        ${key} <input type="checkbox" data-field="${key}">
+                    </th>
+                `;
+            });
+            
+            document.getElementById('table-header').appendChild(headerRow);
+
+            // 生成表格内容
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td class="border border-gray-300 p-2 text-center">1</td>`;
+            
+            // 添加数据列
+            keys.forEach(key => {
+                let cellContent;
+                if (key === 'images') {
+                    // 对于images字段，显示查看按钮
+                    cellContent = `
+                        <button onclick="handleImageClick(this)" data-images='${JSON.stringify(imagesData)}' 
+                                class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
+                            查看图片
+                        </button>
+                    `;
+                        } else {
+                    cellContent = originalData[key] || '-';
+                }
+                
+                tr.innerHTML += `
+                    <td class="border border-gray-300 p-2 text-center">
+                        ${cellContent}
+                    </td>
+                `;
+            });
+            
+            document.getElementById('table-body').appendChild(tr);
+        });
+
+        function handleImageClick(button) {
+            const images = JSON.parse(button.dataset.images);
+            showImages(images);
+        }
+
+        function showImages(images) {
+            const container = document.getElementById('imageContainer');
+            container.innerHTML = ''; // 清空现有内容
+            
+            if (Array.isArray(images)) {
+                images.forEach(verifiedImage => {
+                    const imgWrapper = document.createElement('div');
+                    imgWrapper.className = 'w-full md:w-1/2 lg:w-1/3';
+                    imgWrapper.innerHTML = `
+                        <div class="p-4 border rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                            <img src="data:image/jpeg;base64,${verifiedImage.data}" alt="证书图片" 
+                                 class="w-full h-auto rounded mb-2">
+                        </div>
+                    `;
+                    container.appendChild(imgWrapper);
+                });
+            } else if (typeof images === 'object' && images !== null) {
+                // 处理单个VerifiedImage对象
+                container.innerHTML = `
+                    <div class="w-full max-w-2xl">
+                        <div class="p-4 border rounded-lg shadow-lg">
+                            <img src="data:image/jpeg;base64,${images.data}" alt="证书图片" 
+                                 class="w-full h-auto rounded mb-2">
+                            <div class="text-sm text-gray-600">
+                                <p class="mb-1">文件名: ${images.name}</p>
+                                <p>大小: ${formatFileSize(images.size)}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('imagePopup').classList.remove('hidden');
+        }
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function closeImagePopup() {
+            document.getElementById('imagePopup').classList.add('hidden');
+        }
+
+        function handleGenerate() {
+            // 获取选中的字段
+            const selectedFields = [];
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                if (checkbox.checked) {
+                    const field = checkbox.dataset.field;
+                    selectedFields.push(field);
+                }
+            });
+
+            if (selectedFields.length === 0) {
+                alert('请至少选择一个字段进行认证生成！');
+                return;
+            }
+
+            // 获取证书数据
+            const responseData = JSON.parse(localStorage.getItem('certificateData'));
+            console.log(responseData);
+            const id = responseData.id;
+            const originalData = responseData.data.original_data;
+            const imagesData = responseData.data.images;
+            const tx_hash = responseData.data.tx_hash;
+
+            const originalDataLength = Object.keys(originalData).length;
+            // 准备选中的数据
+            const selectedData = [{  // 将对象包装在数组中
+                id: id,
+                selected_fields: [selectedFields],
+                tx_hash: tx_hash,
+                cid: [responseData.data.cid],
+                proof: [responseData.data.proof],
+                is_zk: selectedFields.length != originalDataLength,
+            }];
+
+            console.log(selectedData);
+
+            // 发送到后端生成认证
+            fetch('http://localhost:3000/api/student/generate-authentication', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(selectedData)  // 发送数组
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('生成认证失败');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 保存数据到localStorage以供下载使用
+                localStorage.setItem('authenticationData', JSON.stringify({
+                    data: data,
+                    id: id,
+                    timestamp: new Date().getTime()
+                }));
+                showPopup();
+            })
+            .catch(error => {
+                alert('生成认证失败：' + error.message);
+            });
+        }
+
+        function handleDownload() {
+            const storedData = JSON.parse(localStorage.getItem('authenticationData'));
+            if (!storedData) {
+                alert('下载数据不存在，请重新生成认证！');
+                return;
+            }
+
+            const { data, id, timestamp } = storedData;
+            const certificateNumber = id || 'unknown';
+            const fileName = `${certificateNumber}-${timestamp}.json`;
+
+            // 创建Blob对象
+            const jsonBlob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            
+            // 创建下载链接
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(jsonBlob);
+            downloadLink.download = fileName;
+            
+            // 触发下载
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+
+            // 清除localStorage中的数据
+            localStorage.removeItem('authenticationData');
+            
+            // 关闭弹窗
+            closePopup();
+        }
+
+        function showPopup() {
+            document.getElementById("popup").classList.remove("hidden");
+        }
+
+        function closePopup() {
+            document.getElementById("popup").classList.add("hidden");
+        }
+
+        // 点击图片弹窗背景时关闭
+        document.getElementById('imagePopup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImagePopup();
+            }
+        });
+    </script>
+    
+</body>
+</html>
